@@ -1,0 +1,13 @@
+{
+  "extends": "@yese/tsconfig/react.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["src", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".vinxi", ".output", "app.config.ts"]
+}

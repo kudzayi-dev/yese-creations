@@ -1,0 +1,31 @@
+{
+  "name": "@yese/storefront",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "vite preview --port 3000",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo .vinxi .output node_modules *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "1.170.17",
+    "@tanstack/react-start": "1.168.27",
+    "@yese/product-data": "workspace:*",
+    "@yese/ui": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@yese/tsconfig": "workspace:*",
+    "typescript": "^5.7.3",
+    "vite": "^7.0.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

@@ -1,0 +1,36 @@
+# deps
+node_modules
+.pnpm-store
+
+# builds
+dist
+.next
+.output
+.vinxi
+.turbo
+*.tsbuildinfo
+
+# TanStack Router/Start dev-server caches + generated route tree
+.tanstack
+apps/storefront/src/routeTree.gen.ts
+
+# Vinxi/TanStack Start dev-server config-reload artifacts (apps/storefront)
+*.timestamp_*.js
+
+# payload
+apps/cms/src/payload-types.ts.bak
+media
+
+# env
+.env
+.env.*
+!.env.example
+
+# misc
+.DS_Store
+*.log
+coverage
+
+# dev 
+design_handoff_yese_shop
+.plan

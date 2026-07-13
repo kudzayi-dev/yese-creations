@@ -1,0 +1,7 @@
+{
+  "extends": "@yese/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src"]
+}

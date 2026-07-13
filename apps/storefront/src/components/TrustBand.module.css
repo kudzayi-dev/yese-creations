@@ -1,0 +1,111 @@
+/* Ported verbatim from styles.css .manifesto/.promise/.trust rules. */
+.manifesto {
+  background: var(--cream-deep);
+  padding: 38px 5vw;
+  text-align: center;
+  border-top: 1px solid rgba(91, 42, 78, 0.12);
+  border-bottom: 1px solid rgba(91, 42, 78, 0.12);
+}
+.line {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 32px);
+  color: var(--teal-deep);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.script {
+  font-family: var(--font-script);
+  color: var(--coral);
+  font-size: 1.35em;
+  display: inline-block;
+  transform: translateY(-2px);
+  margin: 0 4px;
+}
+.by {
+  margin-top: 8px;
+  font-family: var(--font-script);
+  font-size: 22px;
+  color: var(--coral);
+}
+
+.promise {
+  background: var(--cream-deep);
+  padding: 32px 5vw;
+  border-top: 1px solid rgba(91, 42, 78, 0.1);
+  border-bottom: 1px solid rgba(91, 42, 78, 0.1);
+}
+.row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.promiseItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+}
+.promiseItem + .promiseItem::before {
+  content: "✦";
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--coral);
+  font-size: 14px;
+  opacity: 0.6;
+}
+.iconC {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid rgba(91, 42, 78, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--coral);
+}
+.itemText strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--teal-deep);
+  display: block;
+  line-height: 1.1;
+}
+.itemText span {
+  font-size: 12px;
+  color: rgba(14, 59, 67, 0.65);
+  line-height: 1.3;
+}
+@media (max-width: 980px) {
+  .row { grid-template-columns: repeat(2, 1fr); }
+  .promiseItem + .promiseItem::before { display: none; }
+}
+
+.trust {
+  background: var(--teal-deep);
+  color: var(--cream);
+  padding: 22px 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+}
+.star {
+  color: var(--gold);
+  font-size: 18px;
+}

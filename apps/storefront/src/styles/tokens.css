@@ -1,0 +1,278 @@
+/* =========================================================
+   YESE CREATIONS — global tokens + shared classes
+   Ported verbatim from design_handoff_yese_shop/styles.css
+   =========================================================
+   Split strategy:
+     - This file: :root tokens, resets, and ALL truly-global
+       classes (.btn, .tag, .ph*, .kicker, keyframes, etc.)
+     - CSS Modules alongside each component for scoped blocks
+   ========================================================= */
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --teal: #0E3B43;
+  --teal-deep: #082329;
+  --turq: #2BB6C4;
+  --turq-bright: #4FD8E6;
+  --coral: #FF6F61;
+  --coral-soft: #FF9885;
+  --gold: #F2B233;
+  --gold-soft: #FFD06B;
+  --plum: #5B2A4E;
+  --plum-deep: #3A1731;
+  --cream: #FBF1E3;
+  --cream-deep: #F3E3CC;
+  --ink: #1B0F1A;
+  --paper: #FFFAF1;
+
+  --font-display: "Yeseva One", "Recoleta", Georgia, serif;
+  --font-script: "Caveat", "Snell Roundhand", cursive;
+  --font-body: "DM Sans", "Helvetica Neue", system-ui, sans-serif;
+
+  --shadow-soft: 0 18px 40px -22px rgba(11, 36, 41, 0.35);
+  --shadow-card: 0 30px 60px -30px rgba(91, 42, 78, 0.45);
+}
+
+/* ── Resets ─────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ── Background utilities ────────────────────────────────── */
+.paper-bg {
+  position: relative;
+  background:
+    radial-gradient(900px 600px at 90% -10%, rgba(255, 111, 97, 0.10), transparent 60%),
+    radial-gradient(800px 600px at -10% 30%, rgba(43, 182, 196, 0.10), transparent 60%),
+    radial-gradient(600px 500px at 50% 110%, rgba(242, 178, 51, 0.10), transparent 60%),
+    var(--cream);
+}
+.paper-bg::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(91, 42, 78, 0.07) 1px, transparent 1.4px);
+  background-size: 14px 14px;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+/* ── Neon / glow text utilities ─────────────────────────── */
+.neon-outline {
+  -webkit-text-stroke: 1.5px var(--turq-bright);
+  color: transparent;
+  text-shadow:
+    0 0 6px rgba(79, 216, 230, 0.55),
+    0 0 18px rgba(79, 216, 230, 0.35),
+    0 0 38px rgba(79, 216, 230, 0.22);
+}
+.neon-coral {
+  -webkit-text-stroke: 1.5px var(--coral-soft);
+  color: transparent;
+  text-shadow:
+    0 0 6px rgba(255, 152, 133, 0.55),
+    0 0 22px rgba(255, 152, 133, 0.30);
+}
+.glow-turq { box-shadow: 0 0 0 1px rgba(79, 216, 230, 0.45), 0 0 30px -2px rgba(79, 216, 230, 0.45); }
+.glow-coral { box-shadow: 0 0 0 1px rgba(255, 152, 133, 0.45), 0 0 30px -2px rgba(255, 111, 97, 0.45); }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 600; letter-spacing: 0.01em;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary {
+  background: var(--coral);
+  color: var(--paper);
+  box-shadow: var(--shadow-soft), inset 0 -3px 0 rgba(0,0,0,0.12);
+}
+.btn-primary:hover { background: #ff5a4a; box-shadow: 0 22px 40px -18px rgba(255, 111, 97, 0.7); }
+.btn-ghost {
+  background: transparent;
+  color: var(--teal);
+  border: 1.5px solid var(--teal);
+}
+.btn-ghost:hover { background: var(--teal); color: var(--paper); }
+.btn-gold {
+  background: var(--gold); color: var(--plum-deep);
+  box-shadow: var(--shadow-soft), inset 0 -3px 0 rgba(0,0,0,0.10);
+}
+
+/* ── Typography utilities ────────────────────────────────── */
+.eyebrow {
+  font-family: var(--font-script);
+  font-size: 28px;
+  color: var(--coral);
+  line-height: 1;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.eyebrow svg { width: 26px; height: 26px; }
+
+.kicker {
+  font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--teal); font-weight: 600;
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.kicker::before, .kicker::after {
+  content: ""; width: 24px; height: 1px; background: currentColor; opacity: 0.5;
+}
+.kicker.single::before { display: none; }
+.kicker.single::after { display: none; }
+
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--teal-deep);
+}
+
+/* ── Section layout ──────────────────────────────────────── */
+.section { padding: 110px 5vw; position: relative; }
+.section-head { max-width: 720px; }
+
+/* ── Keyframe animations ─────────────────────────────────── */
+@keyframes drift {
+  0%, 100% { transform: translate(0,0) rotate(0deg); }
+  50% { transform: translate(8px,-12px) rotate(4deg); }
+}
+@keyframes drift-rev {
+  0%, 100% { transform: translate(0,0) rotate(0deg); }
+  50% { transform: translate(-10px,10px) rotate(-5deg); }
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(79,216,230,0.4)) drop-shadow(0 0 14px rgba(79,216,230,0.25)); }
+  50% { filter: drop-shadow(0 0 12px rgba(79,216,230,0.7)) drop-shadow(0 0 24px rgba(79,216,230,0.4)); }
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.float { position: absolute; pointer-events: none; }
+.anim-drift { animation: drift 7s ease-in-out infinite; }
+.anim-drift-rev { animation: drift-rev 9s ease-in-out infinite; }
+.anim-glow { animation: glow-pulse 3.6s ease-in-out infinite; }
+.anim-spin-slow { animation: spin-slow 50s linear infinite; }
+.marquee { display: flex; gap: 56px; width: max-content; animation: marquee 38s linear infinite; }
+
+/* ── Scroll reveal ───────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── Tag pill (card badges: bestseller / new / etc.) ─────── */
+.tag {
+  background: var(--paper);
+  font-family: var(--font-script);
+  color: var(--coral);
+  font-size: 18px; line-height: 1;
+  padding: 6px 12px 8px; border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ── Product photo ───────────────────────────────────────── */
+.prod-photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+
+/* ── Placeholder art (no real photos) ───────────────────── */
+.ph {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.ph-stripes::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(135deg,
+    rgba(255,255,255,0.10) 0 10px, rgba(255,255,255,0) 10px 22px);
+}
+.ph-caption {
+  position: absolute; bottom: 12px; left: 12px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.18);
+  padding: 5px 8px; border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Icon button (nav basket, overlay close, etc.) ───────── */
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--paper); border: 1px solid rgba(14,59,67,0.10);
+  position: relative; transition: transform .2s ease;
+  color: var(--teal);
+}
+.icon-btn:hover { transform: translateY(-2px); background: var(--cream-deep); }
+
+/* ── Cart count badge ────────────────────────────────────── */
+.cart-count {
+  position: absolute; top: -4px; right: -4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--coral); color: var(--paper);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px -2px rgba(255, 111, 97, 0.6);
+}
+
+/* ── Category filter chips ───────────────────────────────── */
+.chip-btn {
+  padding: 10px 16px; border-radius: 999px;
+  border: 1px solid rgba(14,59,67,0.16);
+  background: var(--paper); color: var(--teal);
+  font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+.chip-btn:hover { border-color: var(--teal); }
+.chip-btn.active { background: var(--teal-deep); color: var(--paper); border-color: var(--teal-deep); }
+
+/* ── Product grid ────────────────────────────────────────── */
+.product-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+}
+@media (max-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 800px)  { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px)  { .product-grid { grid-template-columns: 1fr; } }
+
+/* ── Section title row (kicker/H2 + optional filters/CTA) ───
+   Shared across Products (Stage 13), Moodboard, Reviews — added
+   here in Stage 12 since Stage 09 ported it only implicitly via
+   .kicker/.h-display; the flex wrapper itself was missing. ── */
+.section-title {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 24px;
+  margin-bottom: 56px;
+}
+.section-title h2 {
+  font-size: clamp(36px, 4.2vw, 60px);
+  margin: 14px 0 0;
+}
+.section-title .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Moodboard (fixed prototype truncation: restored .moodboard rule) ── */
+.moodboard {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 120px;
+  gap: 16px;
+}

@@ -1,0 +1,66 @@
+/* Ported verbatim from styles.css .process* rules. */
+.process {
+  background: var(--plum-deep);
+  color: var(--cream);
+  border-radius: 36px;
+  padding: 80px 56px;
+  position: relative;
+  overflow: hidden;
+}
+.process::before {
+  content: "";
+  position: absolute;
+  inset: -100px;
+  background:
+    radial-gradient(380px 280px at 10% 20%, rgba(255, 111, 97, 0.45), transparent 70%),
+    radial-gradient(380px 280px at 90% 80%, rgba(43, 182, 196, 0.45), transparent 70%),
+    radial-gradient(280px 220px at 60% 40%, rgba(242, 178, 51, 0.3), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+.process > * {
+  position: relative;
+}
+.kicker {
+  color: var(--gold-soft);
+}
+.heading {
+  color: var(--cream);
+  font-size: clamp(36px, 4vw, 56px);
+  margin: 12px 0 0;
+}
+.steps {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+.step {
+  background: rgba(255, 250, 241, 0.05);
+  border: 1px solid rgba(255, 250, 241, 0.1);
+  border-radius: 22px;
+  padding: 26px;
+  backdrop-filter: blur(4px);
+}
+.num {
+  font-family: var(--font-display);
+  font-size: 40px;
+  color: var(--gold-soft);
+  line-height: 1;
+}
+.step h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--cream);
+  margin: 14px 0 8px;
+}
+.step p {
+  color: rgba(251, 241, 227, 0.72);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .steps { grid-template-columns: repeat(2, 1fr); }
+}

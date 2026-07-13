@@ -1,0 +1,34 @@
+{
+  "name": "@yese/cms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "generate:types": "payload generate:types",
+    "seed": "payload run src/scripts/seed.ts",
+    "payload": "payload",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo .next node_modules *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.86.0",
+    "@payloadcms/next": "3.86.0",
+    "@payloadcms/richtext-lexical": "3.86.0",
+    "@yese/product-data": "workspace:*",
+    "graphql": "16.14.2",
+    "next": "16.2.10",
+    "payload": "3.86.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "0.35.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.3"
+  }
+}

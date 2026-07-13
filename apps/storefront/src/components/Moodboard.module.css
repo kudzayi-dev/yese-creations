@@ -1,0 +1,21 @@
+/* Ported verbatim from styles.css .mood rule (.moodboard grid is global,
+   ported in Stage 09/12 to tokens.css). */
+.mood {
+  border-radius: 22px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(14, 59, 67, 0.08);
+  transition: transform 0.4s ease;
+}
+.mood:hover {
+  transform: scale(1.02) rotate(-0.5deg);
+}
+.mood :global(.ph-caption) {
+  bottom: 10px;
+  left: 10px;
+}
+
+@media (max-width: 980px) {
+  :global(.moodboard) { grid-template-columns: repeat(6, 1fr); }
+}
