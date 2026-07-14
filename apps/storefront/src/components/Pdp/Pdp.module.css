@@ -294,6 +294,7 @@
 .stepper button:hover { background: var(--coral); color: var(--paper); }
 .stepper span { font-size: 16px; font-weight: 600; min-width: 18px; text-align: center; }
 .add { flex: 1; justify-content: center; cursor: pointer; }
+.added { background: var(--teal-deep); }
 .reassure {
   text-align: center;
   font-size: 12.5px;

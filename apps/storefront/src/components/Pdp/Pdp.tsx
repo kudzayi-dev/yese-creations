@@ -1,9 +1,10 @@
+import { useEffect, useRef, useState } from "react";
 import { PHGradient } from "@yese/ui";
 import { PALETTES, detailForStorefront, galleryForStorefront } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
-import { IconArrowLeft, IconBag, IconCheck, IconHeartOutline } from "../icons";
+import { IconArrowLeft, IconBag, IconCheck, IconHeart, IconHeartOutline } from "../icons";
 import styles from "./Pdp.module.css";
 
 export interface PdpProps {
@@ -14,16 +15,42 @@ export interface PdpProps {
 // Stage 16 — the standalone, server-rendered twin of ProductOverlay (Stage 15).
 // Reads detailForStorefront()/galleryForStorefront() off the SAME product
 // object the overlay uses, so copy can never drift between the two views
-// (load-bearing constraint #2). Content here renders in the initial HTML —
-// no client state yet. Gallery switching, the qty stepper, add-to-basket, and
-// the wishlist heart are all static in this stage; Stage 19 wires them up.
+// (load-bearing constraint #2). Server-rendered content matches the initial
+// client state below exactly (active=0, qty=1) so hydration never causes a
+// layout shift.
+//
+// Stage 19 — client interactivity layered on top: gallery thumb switching,
+// qty stepper, add-to-basket (shared cart from Stage 14 — NOT a separate
+// localStorage layer, per the stage's gotcha note), and the wishlist heart.
 // The shared Toast (mounted once in __root.tsx, Stage 14) covers this page
-// too — no separate pdp-toast markup needed here.
+// too — no separate pdp-toast markup needed here; addToCart already shows it.
 export function Pdp({ product, related }: PdpProps) {
-  const { cartCount, openDrawer } = useCart();
+  const { cartCount, openDrawer, addToCart, isFav, toggleFav } = useCart();
   const detail = detailForStorefront(product);
   const gallery = galleryForStorefront(product);
-  const activeView = gallery[0]!;
+
+  const [active, setActive] = useState(0);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const addTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Reset local view/qty state if the route ever renders a different product
+  // without a full remount (e.g. a future client-side nav between PDPs).
+  useEffect(() => {
+    setActive(0);
+    setQty(1);
+    setAdded(false);
+  }, [product.id]);
+
+  const activeView = gallery[active] ?? gallery[0]!;
+  const faved = isFav(product.id);
+
+  const handleAdd = () => {
+    addToCart(product, qty);
+    setAdded(true);
+    clearTimeout(addTimer.current);
+    addTimer.current = setTimeout(() => setAdded(false), 1500);
+  };
 
   return (
     <div className={styles.body}>
@@ -56,7 +83,8 @@ export function Pdp({ product, related }: PdpProps) {
             {gallery.map((g, i) => (
               <button
                 key={i}
-                className={`${styles.thumb} ${i === 0 ? styles.thumbActive : ""}`}
+                className={`${styles.thumb} ${i === active ? styles.thumbActive : ""}`}
+                onClick={() => setActive(i)}
                 aria-label={g.label}
                 title={g.label}
               >
@@ -72,8 +100,12 @@ export function Pdp({ product, related }: PdpProps) {
 
           <div className={styles.stage}>
             {product.tag && <span className="tag">{product.tag}</span>}
-            <button className={styles.fav} aria-label="Save to wishlist">
-              <IconHeartOutline size={18} />
+            <button
+              className={`${styles.fav} ${faved ? styles.favOn : ""}`}
+              onClick={() => toggleFav(product.id)}
+              aria-label="Save to wishlist"
+            >
+              {faved ? <IconHeart size={18} /> : <IconHeartOutline size={18} />}
             </button>
             <div className={styles.stageImg}>
               {activeView.type === "photo" ? (
@@ -121,12 +153,30 @@ export function Pdp({ product, related }: PdpProps) {
           <div className={styles.buy}>
             <div className={styles.buyRow}>
               <div className={styles.stepper}>
-                <button aria-label="Decrease quantity">−</button>
-                <span>1</span>
-                <button aria-label="Increase quantity">+</button>
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span>{qty}</span>
+                <button onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">
+                  +
+                </button>
               </div>
-              <button className={`btn btn-primary ${styles.add}`}>
-                <IconBag size={15} /> Add to basket · {formatGBP(product.price)}
+              <button
+                className={`btn btn-primary ${styles.add} ${added ? styles.added : ""}`}
+                onClick={handleAdd}
+              >
+                {added ? (
+                  <>
+                    <IconCheck size={15} /> Added ✓
+                  </>
+                ) : (
+                  <>
+                    <IconBag size={15} /> Add to basket · {formatGBP(product.price * qty)}
+                  </>
+                )}
               </button>
             </div>
             <div className={styles.reassure}>
