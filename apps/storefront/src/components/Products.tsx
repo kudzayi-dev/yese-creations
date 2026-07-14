@@ -1,21 +1,25 @@
 import { useMemo, useRef, useState } from "react";
 import { CATEGORIES } from "@yese/product-data";
 import type { Category, StorefrontProduct } from "@yese/product-data";
+import { useCart } from "~/hooks/useCart";
 import { ProductCard } from "./ProductCard";
+import { ProductOverlay } from "./ProductOverlay";
 
 export interface ProductsProps {
   products: StorefrontProduct[];
 }
 
-// Ported from Products in app.jsx. Category filter, fav toggle, and the
-// add-flash timer are all local UI state for this stage — real cart/wishlist
-// persistence (localStorage, Nav badge) lands in Stage 14; the fast overlay
-// that onOpen should show lands in Stage 15.
+// Ported from Products in app.jsx. Category filter, the add-flash timer, and
+// the overlay's selected-product state stay local UI state (per-page,
+// ephemeral). Cart/wishlist are shared state from Stage 14's CartProvider so
+// they persist and stay in sync with the Nav badge and (eventually) the PDP
+// routes.
 export function Products({ products }: ProductsProps) {
   const [cat, setCat] = useState<"All" | Category>("All");
-  const [favs, setFavs] = useState<Set<number>>(new Set());
   const [lastAdded, setLastAdded] = useState<number | null>(null);
+  const [selected, setSelected] = useState<StorefrontProduct | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { addToCart, isFav, toggleFav } = useCart();
 
   const filtered = useMemo(
     () => (cat === "All" ? products : products.filter((p) => p.cat === cat)),
@@ -23,24 +27,14 @@ export function Products({ products }: ProductsProps) {
   );
 
   const handleAdd = (p: StorefrontProduct) => {
+    addToCart(p);
     setLastAdded(p.id);
     clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setLastAdded(null), 1500);
   };
 
-  const handleFav = (id: number) => {
-    setFavs((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleOpen = (_p: StorefrontProduct) => {
-    // Overlay lands in Stage 15. Intercepting the click (rather than letting
-    // it navigate) is still correct now: the PDP route doesn't exist until
-    // Stage 16 either, so a plain click doing nothing beats a 404.
+  const handleOpen = (p: StorefrontProduct) => {
+    setSelected(p);
   };
 
   return (
@@ -67,14 +61,15 @@ export function Products({ products }: ProductsProps) {
           <ProductCard
             key={p.id}
             product={p}
-            faved={favs.has(p.id)}
+            faved={isFav(p.id)}
             addedFlash={lastAdded === p.id}
             onAdd={handleAdd}
-            onFav={handleFav}
+            onFav={toggleFav}
             onOpen={handleOpen}
           />
         ))}
       </div>
+      <ProductOverlay product={selected} onClose={() => setSelected(null)} />
     </section>
   );
 }

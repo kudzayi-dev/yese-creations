@@ -1,0 +1,91 @@
+import { PHGradient } from "@yese/ui";
+import { PALETTES } from "@yese/product-data";
+import { useCart } from "~/hooks/useCart";
+import { IconBag, IconClose } from "./icons";
+import styles from "./CartDrawer.module.css";
+
+// Ported from CartDrawer in app.jsx. Backdrop (.drawer-bg equivalent) closes
+// on click; qty steppers inc/dec (min 1); remove drops the line entirely;
+// subtotal recomputed from cart; empty state offers a way back to the grid.
+export function CartDrawer() {
+  const { cart, drawerOpen, closeDrawer, incQty, decQty, removeItem } = useCart();
+  const total = Math.round(cart.reduce((s, c) => s + c.price * c.qty, 0) * 100) / 100;
+
+  return (
+    <>
+      <div
+        className={`${styles.drawerBg} ${drawerOpen ? styles.open : ""}`}
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
+      <aside className={`${styles.drawer} ${drawerOpen ? styles.open : ""}`} aria-hidden={!drawerOpen}>
+        <div className={styles.head}>
+          <h3>Your basket</h3>
+          <button className="icon-btn" onClick={closeDrawer} aria-label="Close basket">
+            <IconClose />
+          </button>
+        </div>
+
+        {cart.length === 0 ? (
+          <div className={styles.empty}>
+            <div className={styles.emptyIcon}>
+              <IconBag size={28} />
+            </div>
+            <strong className={styles.emptyTitle}>Your basket is empty</strong>
+            <p>Start adding a little handmade magic.</p>
+            <button className="btn btn-ghost" onClick={closeDrawer}>
+              Browse the collection
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.body}>
+              {cart.map((item) => (
+                <div className={styles.item} key={item.id}>
+                  <div className={styles.thumb}>
+                    {item.img ? (
+                      <img className="prod-photo" src={item.img} alt={item.name} />
+                    ) : (
+                      <PHGradient palette={PALETTES[item.palette]!} motif={item.motif} />
+                    )}
+                  </div>
+
+                  <div>
+                    <h5 className={styles.itemName}>{item.name}</h5>
+                    <div className={styles.itemPrice}>£{item.price}</div>
+                    <div className={styles.qty}>
+                      <button onClick={() => decQty(item.id)} aria-label="Decrease quantity">
+                        −
+                      </button>
+                      <span>{item.qty}</span>
+                      <button onClick={() => incQty(item.id)} aria-label="Increase quantity">
+                        +
+                      </button>
+                      <button className={styles.remove} onClick={() => removeItem(item.id)}>
+                        remove
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.linePrice}>
+                    £{Math.round(item.price * item.qty * 100) / 100}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.foot}>
+              <div className={styles.total}>
+                <span>Subtotal</span>
+                <strong>£{total}</strong>
+              </div>
+              <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+                Checkout
+              </button>
+              <div className={styles.reassure}>Free UK shipping over £80 · Wrapped &amp; posted by me ✦</div>
+            </div>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}

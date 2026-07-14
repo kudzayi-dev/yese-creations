@@ -2,7 +2,7 @@ import { IconBag, IconHeartOutline, IconSearch } from "./icons";
 import styles from "./Nav.module.css";
 
 export interface NavProps {
-  /** Wired to real cart state in Stage 14; defaults to 0 until then. */
+  /** From useCart() (Stage 14) — cartCount, opens the CartDrawer on click. */
   cartCount?: number;
   onCartClick?: () => void;
 }

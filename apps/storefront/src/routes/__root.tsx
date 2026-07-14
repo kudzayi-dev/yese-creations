@@ -7,6 +7,9 @@ import {
 import type { ReactNode } from "react";
 
 import "../styles/tokens.css";
+import { CartProvider } from "~/hooks/useCart";
+import { CartDrawer } from "~/components/CartDrawer";
+import { Toast } from "~/components/Toast";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -38,7 +41,11 @@ function RootDocument({ children }: { children?: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <CartProvider>
+          <Outlet />
+          <CartDrawer />
+          <Toast />
+        </CartProvider>
         <Scripts />
       </body>
     </html>

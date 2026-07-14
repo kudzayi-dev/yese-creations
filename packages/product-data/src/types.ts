@@ -72,6 +72,14 @@ export type GalleryView =
   | { type: "photo"; src: string; label: string }
   | { type: "ph"; palette: number; motif: Motif; label: string };
 
+// Storefront-side gallery view — same shape as GalleryView, but a "photo"
+// entry carries both the thumb-sized and stage-sized CMS crops (the seed-data
+// GalleryView only has one `src` since the prototype had no responsive image
+// sizes). Built by galleryForStorefront() from a StorefrontProduct's `photos`.
+export type StorefrontGalleryView =
+  | { type: "photo"; thumbUrl: string; stageUrl: string; label: string }
+  | { type: "ph"; palette: number; motif: Motif; label: string };
+
 export interface Palette {
   from: string;
   via: string;

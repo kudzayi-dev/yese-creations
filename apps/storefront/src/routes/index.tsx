@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getAllProducts } from "~/lib/products";
 import { useReveal } from "~/hooks/useReveal";
+import { useCart } from "~/hooks/useCart";
 import { Nav } from "~/components/Nav";
 import { Hero } from "~/components/Hero";
 import { TrustBand } from "~/components/TrustBand";
@@ -21,10 +22,11 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   useReveal();
   const products = Route.useLoaderData();
+  const { cartCount, openDrawer } = useCart();
 
   return (
     <>
-      <Nav />
+      <Nav cartCount={cartCount} onCartClick={openDrawer} />
       <Hero />
       <TrustBand variant="manifesto" />
       <Products products={products} />
@@ -35,7 +37,8 @@ function HomePage() {
       <Bespoke />
       <Reviews />
       <Footer />
-      {/* CartDrawer, ProductOverlay, Toast — Stages 14/15 */}
+      {/* CartDrawer + Toast render at the root layout (Stage 14) so they're
+          shared across routes. ProductOverlay lands in Stage 15. */}
     </>
   );
 }
