@@ -1,0 +1,10 @@
+# Yese Creations. Update the Sitemap host below if SITE_URL (.env) ever
+# changes production domains — this file is static, unlike sitemap.xml
+# (which vite.config.ts regenerates from SITE_URL at every build).
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /confirmation
+Disallow: /api/
+
+Sitemap: https://www.yesecreations.com/sitemap.xml
