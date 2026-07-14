@@ -14,6 +14,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type Stripe from "stripe";
 import { getStripe } from "~/lib/stripe-server";
+import { markOrderFailed, markOrderPaid } from "~/lib/orders";
 
 export const Route = createFileRoute("/api/webhooks/stripe")({
   server: {
@@ -46,19 +47,17 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
         switch (event.type) {
           case "payment_intent.succeeded": {
             const intent = event.data.object;
-            // TODO: this is the real hook point for order persistence —
-            // create the order record (using intent.metadata.items /
-            // shippingMethod / subtotal / shipping set in
-            // lib/checkout.ts's createPaymentIntent), send the confirmation
-            // email, and trigger fulfillment. No orders table exists yet
-            // (out of scope for Stage 17 per its task list), so this is
-            // logged rather than persisted — flagged in the stage's
-            // Status/outcome section.
+            // The Order (customer contact/shipping details, CMS-owned) was
+            // already created as "pending" by lib/orders.ts's createOrder,
+            // called from CheckoutForm.tsx before this PaymentIntent was
+            // confirmed. This — the verified, signed webhook event, not the
+            // client-side redirect — is what flips it to "paid".
             console.log("[stripe webhook] payment_intent.succeeded", {
               id: intent.id,
               amount: intent.amount,
               metadata: intent.metadata,
             });
+            await markOrderPaid(intent.id);
             break;
           }
           case "payment_intent.payment_failed": {
@@ -67,6 +66,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
               id: intent.id,
               lastError: intent.last_payment_error?.message,
             });
+            await markOrderFailed(intent.id);
             break;
           }
           default:

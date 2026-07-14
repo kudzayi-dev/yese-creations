@@ -118,6 +118,7 @@ export function Checkout() {
                 setEmail={setEmail}
                 shippingMethod={shippingMethod}
                 setShippingMethod={setShippingMethod}
+                paymentIntentId={paymentIntentId}
               />
             </Elements>
           ) : (

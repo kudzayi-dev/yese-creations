@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { SHIPPING_OPTIONS, type ShippingMethod } from "~/lib/shipping";
+import { createOrder, type CreateOrderItem } from "~/lib/orders";
+import { useCart } from "~/hooks/useCart";
 import { IconLock } from "../icons";
 import styles from "./Checkout.module.css";
 
@@ -9,28 +11,101 @@ export interface CheckoutFormProps {
   setEmail: (v: string) => void;
   shippingMethod: ShippingMethod;
   setShippingMethod: (m: ShippingMethod) => void;
+  paymentIntentId: string | null;
 }
+
+interface ContactDetails {
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2: string;
+  city: string;
+  postcode: string;
+  country: string;
+  phone: string;
+}
+
+const EMPTY_CONTACT: ContactDetails = {
+  firstName: "",
+  lastName: "",
+  address1: "",
+  address2: "",
+  city: "",
+  postcode: "",
+  country: "United Kingdom",
+  phone: "",
+};
 
 // The actual <form> — address fields, shipping-method radios, and the
 // mounted Stripe Payment Element. Must render inside an <Elements> provider
 // (Checkout.tsx only mounts this once a real clientSecret exists), since
 // useStripe()/useElements() and <PaymentElement /> all need that context.
-export function CheckoutForm({ email, setEmail, shippingMethod, setShippingMethod }: CheckoutFormProps) {
+export function CheckoutForm({
+  email,
+  setEmail,
+  shippingMethod,
+  setShippingMethod,
+  paymentIntentId,
+}: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
+  const { cart } = useCart();
+  const [contact, setContact] = useState<ContactDetails>(EMPTY_CONTACT);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const setField = (field: keyof ContactDetails) => (e: { target: { value: string } }) =>
+    setContact((c) => ({ ...c, [field]: e.target.value }));
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !paymentIntentId) return;
 
     setSubmitting(true);
+
+    // The CMS owns customer contact/shipping details — create the Order
+    // record there (status: "pending") BEFORE asking Stripe to confirm the
+    // charge. Stripe only ever gets the email (for its own receipt), never
+    // the shipping address. The webhook (api.webhooks.stripe.ts) flips this
+    // order to "paid" once Stripe's signed event confirms the outcome.
+    try {
+      const items: CreateOrderItem[] = cart.map((c) => ({ id: c.id, qty: c.qty }));
+      await createOrder({
+        data: {
+          paymentIntentId,
+          email,
+          shippingMethod,
+          items,
+          ...contact,
+        },
+      });
+    } catch (err) {
+      setSubmitting(false);
+      setError(err instanceof Error ? err.message : "Couldn't save your order — please try again.");
+      return;
+    }
+
     const returnUrl = `${window.location.origin}/confirmation`;
     const result = await stripe.confirmPayment({
       elements,
-      confirmParams: { return_url: returnUrl, payment_method_data: { billing_details: { email } } },
+      confirmParams: {
+        return_url: returnUrl,
+        payment_method_data: {
+          billing_details: {
+            email,
+            name: `${contact.firstName} ${contact.lastName}`.trim(),
+            phone: contact.phone || undefined,
+            address: {
+              line1: contact.address1,
+              line2: contact.address2 || undefined,
+              city: contact.city,
+              postal_code: contact.postcode,
+              country: contact.country,
+            },
+          },
+        },
+      },
     });
     // On success Stripe redirects the browser to return_url itself — we only
     // ever reach this line on failure.
@@ -59,31 +134,73 @@ export function CheckoutForm({ email, setEmail, shippingMethod, setShippingMetho
             </div>
             <div className={styles.field}>
               <label htmlFor="fname">First name</label>
-              <input id="fname" type="text" required />
+              <input
+                id="fname"
+                name="firstName"
+                type="text"
+                required
+                value={contact.firstName}
+                onChange={setField("firstName")}
+              />
             </div>
             <div className={styles.field}>
               <label htmlFor="lname">Last name</label>
-              <input id="lname" type="text" required />
+              <input
+                id="lname"
+                name="lastName"
+                type="text"
+                required
+                value={contact.lastName}
+                onChange={setField("lastName")}
+              />
             </div>
             <div className={`${styles.field} ${styles.fieldFull}`}>
               <label htmlFor="addr1">Address</label>
-              <input id="addr1" type="text" required placeholder="Street address" />
+              <input
+                id="addr1"
+                name="address1"
+                type="text"
+                required
+                placeholder="Street address"
+                value={contact.address1}
+                onChange={setField("address1")}
+              />
             </div>
             <div className={`${styles.field} ${styles.fieldFull}`}>
               <label htmlFor="addr2">Apartment, suite, etc. (optional)</label>
-              <input id="addr2" type="text" />
+              <input
+                id="addr2"
+                name="address2"
+                type="text"
+                value={contact.address2}
+                onChange={setField("address2")}
+              />
             </div>
             <div className={styles.field}>
               <label htmlFor="city">City</label>
-              <input id="city" type="text" required />
+              <input
+                id="city"
+                name="city"
+                type="text"
+                required
+                value={contact.city}
+                onChange={setField("city")}
+              />
             </div>
             <div className={styles.field}>
               <label htmlFor="postcode">Postcode</label>
-              <input id="postcode" type="text" required />
+              <input
+                id="postcode"
+                name="postcode"
+                type="text"
+                required
+                value={contact.postcode}
+                onChange={setField("postcode")}
+              />
             </div>
             <div className={styles.field}>
               <label htmlFor="country">Country</label>
-              <select id="country" required defaultValue="United Kingdom">
+              <select id="country" name="country" required value={contact.country} onChange={setField("country")}>
                 <option>United Kingdom</option>
                 <option>Ireland</option>
                 <option>United States</option>
@@ -92,7 +209,13 @@ export function CheckoutForm({ email, setEmail, shippingMethod, setShippingMetho
             </div>
             <div className={styles.field}>
               <label htmlFor="phone">Phone (optional)</label>
-              <input id="phone" type="tel" />
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={contact.phone}
+                onChange={setField("phone")}
+              />
             </div>
           </div>
         </div>

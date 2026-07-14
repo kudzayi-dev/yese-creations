@@ -7,6 +7,7 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 
 import { Media } from "./collections/Media";
+import { Orders } from "./collections/Orders";
 import { Products } from "./collections/Products";
 import { Users } from "./collections/Users";
 
@@ -21,7 +22,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Media, Products],
+  collections: [Users, Media, Products, Orders],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

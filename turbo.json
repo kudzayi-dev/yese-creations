@@ -11,7 +11,8 @@
     "SITE_URL",
     "STRIPE_SECRET_KEY",
     "VITE_STRIPE_PUBLISHABLE_KEY",
-    "STRIPE_WEBHOOK_SECRET"
+    "STRIPE_WEBHOOK_SECRET",
+    "CMS_SERVICE_TOKEN"
   ],
   "tasks": {
     "build": {

@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     products: Product;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -262,6 +264,43 @@ export interface Product {
   createdAt: string;
 }
 /**
+ * Customer orders — the CMS is the system of record for contact/shipping details. Stripe only processes payment.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  status: 'pending' | 'paid' | 'payment_failed' | 'refunded';
+  /**
+   * Join key back to Stripe — the only thing Stripe and the CMS share about this order.
+   */
+  stripePaymentIntentId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  address1: string;
+  address2?: string | null;
+  city: string;
+  postcode: string;
+  country: string;
+  shippingMethod: 'standard' | 'express' | 'nextday';
+  items: {
+    productId: number;
+    name: string;
+    unitPrice: number;
+    qty: number;
+    lineTotal: number;
+    id?: string | null;
+  }[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -296,6 +335,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -438,6 +481,39 @@ export interface ProductsSelect<T extends boolean = true> {
   madeIn?: T;
   metaTitle?: T;
   metaDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  status?: T;
+  stripePaymentIntentId?: T;
+  email?: T;
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  address1?: T;
+  address2?: T;
+  city?: T;
+  postcode?: T;
+  country?: T;
+  shippingMethod?: T;
+  items?:
+    | T
+    | {
+        productId?: T;
+        name?: T;
+        unitPrice?: T;
+        qty?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  shipping?: T;
+  total?: T;
   updatedAt?: T;
   createdAt?: T;
 }
