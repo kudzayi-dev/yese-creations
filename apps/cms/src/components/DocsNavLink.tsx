@@ -30,7 +30,7 @@ export function DocsNavLink() {
         }}
       >
         <span aria-hidden="true">📘</span>
-        Handover guide
+        Admin guides
       </a>
     </div>
   );
