@@ -21,6 +21,14 @@ export default buildConfig({
   cors: [process.env.STOREFRONT_URL || "http://localhost:3000"],
   admin: {
     user: Users.slug,
+    components: {
+      // Adds a "Handover guide" link to the bottom of the admin nav,
+      // pointing at /admin/docs (see DocsNavLink.tsx and the route at
+      // src/app/(payload)/admin/docs/[[...slug]]/route.ts) so the client
+      // handover site is actually discoverable, not just a URL someone has
+      // to already know.
+      afterNavLinks: ["/components/DocsNavLink#DocsNavLink"],
+    },
   },
   collections: [Users, Media, Products, Orders],
   editor: lexicalEditor(),

@@ -1,21 +1,33 @@
 /**
- * /docs/[[...slug]] — serves the static Docusaurus handover site, gated
- * behind a real, logged-in Payload admin session.
+ * /admin/docs/[[...slug]] — serves the static Docusaurus handover site,
+ * gated behind a real, logged-in Payload admin session.
  *
- * This is a Route Handler (not a page), so it isn't wrapped by the
- * (payload) route group's admin layout — it reads and returns the static
- * files built by `apps/docs` (docusaurus build) directly, after checking
+ * Lives under /admin/docs (rather than a bare /docs) so it reads as part
+ * of the admin panel itself — it's linked from the admin nav (see
+ * DocsNavLink.tsx, wired in via payload.config.ts's
+ * admin.components.afterNavLinks) rather than being a separate top-level
+ * destination someone could stumble onto without realizing it's admin-only.
+ *
+ * This is a Route Handler (not a page). Route Handlers aren't wrapped by a
+ * parent segment's layout.tsx, so even though this sits inside the
+ * (payload) route group next to the admin catch-all page, it does NOT get
+ * Payload's admin UI chrome — it reads and returns the static files built
+ * by `apps/docs` (docusaurus build) directly, after checking
  * `payload.auth()` against the request's own cookies. There's no separate
  * password or login for the docs site: if you're logged into /admin, you
- * can see /docs; if you're not, you're redirected to the same admin login
- * everyone already uses.
+ * can see /admin/docs; if you're not, you're redirected to the same admin
+ * login everyone already uses.
  *
- * `apps/docs`'s static build output lives at ../docs/build (a sibling app
- * in this monorepo) — this assumes both apps are deployed together from
- * the same checkout, which holds for this project's current single-host
- * deployment model. If the CMS is ever deployed independently of the rest
- * of the monorepo, this path (and the build step that produces it) needs
- * to move with it.
+ * Next.js resolves this static "docs" segment before falling back to the
+ * sibling [[...segments]] catch-all page, so /admin/docs/* is served from
+ * here and every other /admin/* path is untouched.
+ *
+ * `apps/docs`'s static build output lives at ../../docs/build (a sibling
+ * app in this monorepo) — this assumes both apps are deployed together
+ * from the same checkout, which holds for this project's current
+ * single-host deployment model. If the CMS is ever deployed independently
+ * of the rest of the monorepo, this path (and the build step that produces
+ * it) needs to move with it.
  */
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -49,7 +61,7 @@ function contentTypeFor(filePath: string): string {
   return CONTENT_TYPES[path.extname(filePath).toLowerCase()] ?? "application/octet-stream";
 }
 
-// Resolves a requested /docs/<slug...> path to a real file inside the
+// Resolves a requested /admin/docs/<slug...> path to a real file inside the
 // Docusaurus build output. Docusaurus (trailingSlash: false) emits clean
 // URLs as top-level *.html files (e.g. managing-products.html) rather than
 // managing-products/index.html, so that's tried first; a couple of other
@@ -91,7 +103,7 @@ export async function GET(
   if (!(await isLoggedIntoAdmin(req))) {
     // Payload's stock login page doesn't support a "redirect back here"
     // param out of the box, so this just lands on /admin after signing in —
-    // one extra click back to /docs, not a broken flow.
+    // one extra click back to /admin/docs, not a broken flow.
     return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 

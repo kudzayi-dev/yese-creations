@@ -2,16 +2,19 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
 // Yese Creations — client handover guide. Built as a static site (docusaurus
-// build) and served ONLY through apps/cms's /docs route, which checks the
-// visitor has a real, logged-in Payload admin session before returning any
-// of these files — see apps/cms/src/app/docs/[[...slug]]/route.ts. This app
+// build) and served ONLY through apps/cms's /admin/docs route, which checks
+// the visitor has a real, logged-in Payload admin session before returning
+// any of these files — see
+// apps/cms/src/app/(payload)/admin/docs/[[...slug]]/route.ts. This app
 // never runs its own server in production; `pnpm build` here just produces
-// static files for that route to read from disk.
+// static files for that route to read from disk. It's linked from the
+// admin nav itself — see apps/cms/src/components/DocsNavLink.tsx.
 //
-// baseUrl is "/docs/" because that's the real path this site is served at
-// once mounted behind the CMS — every generated link/asset URL needs that
-// prefix baked in. routeBasePath: "/" on the docs plugin (below) then makes
-// the docs pages live directly at /docs/<slug> instead of /docs/docs/<slug>.
+// baseUrl is "/admin/docs/" because that's the real path this site is
+// served at once mounted behind the CMS — every generated link/asset URL
+// needs that prefix baked in. routeBasePath: "/" on the docs plugin (below)
+// then makes the docs pages live directly at /admin/docs/<slug> instead of
+// /admin/docs/docs/<slug>.
 const config: Config = {
   title: "Yese Creations — Handover Guide",
   tagline: "How to run your shop day-to-day",
@@ -22,7 +25,7 @@ const config: Config = {
   },
 
   url: "http://localhost:3001",
-  baseUrl: "/docs/",
+  baseUrl: "/admin/docs/",
 
   organizationName: "yese-creations",
   projectName: "yese-handover-docs",
@@ -72,8 +75,8 @@ const config: Config = {
         },
         {
           // "pathname://" tells Docusaurus this is a real absolute path outside
-          // the site's own baseUrl (/docs/) rather than a doc slug to resolve
-          // and broken-link-check against this site's own pages.
+          // the site's own baseUrl (/admin/docs/) rather than a doc slug to
+          // resolve and broken-link-check against this site's own pages.
           href: "pathname:///admin",
           label: "Back to admin",
           position: "right",
