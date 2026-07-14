@@ -1,0 +1,353 @@
+/* Ported from design_handoff_yese_checkout/checkout.css — camelCase class
+   names, same tokens (imported globally via tokens.css so no local :root
+   redeclaration needed here, unlike the standalone prototype). */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 70px;
+  padding: 0 clamp(16px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(251, 241, 227, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(14, 59, 67, 0.08);
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--teal-deep);
+  padding: 9px 16px 9px 12px;
+  border-radius: 999px;
+  background: var(--cream);
+  transition: background 0.2s ease;
+}
+.back:hover {
+  background: var(--cream-deep);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+.brandName {
+  font-family: var(--font-display);
+  font-size: 21px;
+}
+.brandTag {
+  font-family: var(--font-script);
+  font-size: 16px;
+  color: var(--coral);
+  margin-left: -2px;
+}
+.lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal);
+}
+
+.main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px clamp(16px, 3.5vw, 48px) 80px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(28px, 4vw, 60px);
+  align-items: start;
+}
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  font-size: 13px;
+  color: rgba(14, 59, 67, 0.5);
+  font-weight: 600;
+}
+.stepsOn {
+  color: var(--coral);
+}
+.steps svg {
+  opacity: 0.5;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  margin: 0 0 18px;
+  color: var(--teal-deep);
+}
+.section {
+  margin-bottom: 36px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldFull {
+  grid-column: 1 / -1;
+}
+.field label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--teal);
+}
+.field input,
+.field select {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(14, 59, 67, 0.16);
+  background: var(--paper);
+  color: var(--teal-deep);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus,
+.field select:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.15);
+}
+
+.shipOpts {
+  display: grid;
+  gap: 10px;
+}
+.shipOpt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(14, 59, 67, 0.14);
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.shipOpt:hover {
+  border-color: rgba(255, 111, 97, 0.5);
+}
+.shipOpt input {
+  accent-color: var(--coral);
+}
+.shipOptLbl {
+  flex: 1;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.shipOptSub {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: rgba(14, 59, 67, 0.55);
+  margin-top: 1px;
+}
+.shipOptAmt {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--plum);
+}
+.shipOptSelected {
+  border-color: var(--coral);
+  background: rgba(255, 111, 97, 0.06);
+}
+
+.payCard {
+  border: 1px solid rgba(14, 59, 67, 0.14);
+  border-radius: 14px;
+  background: var(--paper);
+  padding: 16px;
+}
+.payElement {
+  min-height: 56px;
+}
+.payPlaceholder {
+  font-size: 13px;
+  color: rgba(14, 59, 67, 0.6);
+  padding: 10px 2px;
+}
+.payBadges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: rgba(14, 59, 67, 0.55);
+}
+.submit {
+  width: 100%;
+  justify-content: center;
+  font-size: 16px;
+  padding: 16px 22px;
+  margin-top: 22px;
+}
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.error {
+  color: var(--coral);
+  font-size: 13px;
+  margin-top: 10px;
+}
+.reassure {
+  text-align: center;
+  font-size: 12.5px;
+  color: rgba(14, 59, 67, 0.55);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+
+.summary {
+  position: sticky;
+  top: 96px;
+  background: var(--paper);
+  border: 1px solid rgba(14, 59, 67, 0.08);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 30px 60px -32px rgba(8, 35, 41, 0.35);
+}
+.summary h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 0 0 18px;
+  color: var(--teal-deep);
+}
+.line {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed rgba(14, 59, 67, 0.12);
+}
+.thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: var(--cream-deep);
+}
+.lineName {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.lineQty {
+  font-size: 12px;
+  color: rgba(14, 59, 67, 0.55);
+  margin-top: 2px;
+}
+.linePrice {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--plum);
+}
+.promo {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0;
+}
+.promo input {
+  flex: 1;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(14, 59, 67, 0.16);
+  background: var(--cream);
+  color: var(--teal-deep);
+}
+.promo button {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--cream-deep);
+  color: var(--teal-deep);
+  border: none;
+}
+.totals {
+  margin-top: 6px;
+  font-size: 14px;
+}
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  color: rgba(14, 59, 67, 0.7);
+}
+.totalsGrand {
+  border-top: 1px solid rgba(14, 59, 67, 0.12);
+  margin-top: 8px;
+  padding-top: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+.totalsGrand strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--plum);
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(14, 59, 67, 0.6);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--teal-deep);
+  display: block;
+  margin-bottom: 8px;
+}
+.empty a {
+  font-weight: 600;
+  color: var(--coral);
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .summary {
+    position: static;
+  }
+}
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .brandName,
+  .brandTag {
+    display: none;
+  }
+}

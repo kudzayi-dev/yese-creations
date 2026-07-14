@@ -1,5 +1,5 @@
 import { MoodArt } from "@yese/ui";
-import { IconInstagram } from "./icons";
+import { IconInstagram } from "../icons";
 import styles from "./Moodboard.module.css";
 
 const TILES = [

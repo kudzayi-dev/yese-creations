@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconArrow, IconCheck } from "./icons";
+import { IconArrow, IconCheck } from "../icons";
 import styles from "./Bespoke.module.css";
 
 const STATS = [

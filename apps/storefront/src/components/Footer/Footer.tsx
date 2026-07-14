@@ -1,4 +1,4 @@
-import { IconArrow, IconInstagram, IconPinterest, IconTiktok } from "./icons";
+import { IconArrow, IconInstagram, IconPinterest, IconTiktok } from "../icons";
 import styles from "./Footer.module.css";
 
 export function Footer() {

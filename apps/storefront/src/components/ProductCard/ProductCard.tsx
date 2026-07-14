@@ -1,7 +1,8 @@
 import { PHGradient } from "@yese/ui";
 import { PALETTES } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
-import { IconBag, IconCheck, IconHeart, IconHeartOutline } from "./icons";
+import { formatGBP } from "~/lib/format";
+import { IconBag, IconCheck, IconHeart, IconHeartOutline } from "../icons";
 import styles from "./ProductCard.module.css";
 
 export interface ProductCardProps {
@@ -58,7 +59,7 @@ export function ProductCard({ product: p, faved, addedFlash, onAdd, onFav, onOpe
         </h3>
         <div className={styles.meta}>{p.meta}</div>
         <div className={styles.row}>
-          <div className={styles.price}>£{p.price}</div>
+          <div className={styles.price}>{formatGBP(p.price)}</div>
           <button
             className={`${styles.add} ${addedFlash ? styles.added : ""}`}
             onClick={() => onAdd(p)}

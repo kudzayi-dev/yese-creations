@@ -1,7 +1,9 @@
+import { Link } from "@tanstack/react-router";
 import { PHGradient } from "@yese/ui";
 import { PALETTES } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
-import { IconBag, IconClose } from "./icons";
+import { formatGBP } from "~/lib/format";
+import { IconBag, IconClose } from "../icons";
 import styles from "./CartDrawer.module.css";
 
 // Ported from CartDrawer in app.jsx. Backdrop (.drawer-bg equivalent) closes
@@ -9,7 +11,7 @@ import styles from "./CartDrawer.module.css";
 // subtotal recomputed from cart; empty state offers a way back to the grid.
 export function CartDrawer() {
   const { cart, drawerOpen, closeDrawer, incQty, decQty, removeItem } = useCart();
-  const total = Math.round(cart.reduce((s, c) => s + c.price * c.qty, 0) * 100) / 100;
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
 
   return (
     <>
@@ -52,7 +54,7 @@ export function CartDrawer() {
 
                   <div>
                     <h5 className={styles.itemName}>{item.name}</h5>
-                    <div className={styles.itemPrice}>£{item.price}</div>
+                    <div className={styles.itemPrice}>{formatGBP(item.price)}</div>
                     <div className={styles.qty}>
                       <button onClick={() => decQty(item.id)} aria-label="Decrease quantity">
                         −
@@ -66,9 +68,7 @@ export function CartDrawer() {
                       </button>
                     </div>
                   </div>
-                  <div className={styles.linePrice}>
-                    £{Math.round(item.price * item.qty * 100) / 100}
-                  </div>
+                  <div className={styles.linePrice}>{formatGBP(item.price * item.qty)}</div>
                 </div>
               ))}
             </div>
@@ -76,11 +76,16 @@ export function CartDrawer() {
             <div className={styles.foot}>
               <div className={styles.total}>
                 <span>Subtotal</span>
-                <strong>£{total}</strong>
+                <strong>{formatGBP(total)}</strong>
               </div>
-              <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+              <Link
+                to="/checkout"
+                className="btn btn-primary"
+                style={{ width: "100%", justifyContent: "center" }}
+                onClick={closeDrawer}
+              >
                 Checkout
-              </button>
+              </Link>
               <div className={styles.reassure}>Free UK shipping over £80 · Wrapped &amp; posted by me ✦</div>
             </div>
           </>

@@ -1,7 +1,8 @@
 import { PHGradient } from "@yese/ui";
 import { PALETTES } from "@yese/product-data";
 import type { Motif } from "@yese/product-data";
-import { IconArrow } from "./icons";
+import { formatGBP } from "~/lib/format";
+import { IconArrow } from "../icons";
 import styles from "./Gallery.module.css";
 
 // Ported from app.jsx Gallery(). This is static marketing content (the
@@ -64,7 +65,7 @@ export function Gallery() {
               <div className={styles.priceArt}>
                 {w.price > 0 ? (
                   <>
-                    £{w.price}
+                    {formatGBP(w.price)}
                     <small>Enquire</small>
                   </>
                 ) : (

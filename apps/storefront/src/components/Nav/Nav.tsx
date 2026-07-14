@@ -1,4 +1,4 @@
-import { IconBag, IconHeartOutline, IconSearch } from "./icons";
+import { IconBag, IconHeartOutline, IconSearch } from "../icons";
 import styles from "./Nav.module.css";
 
 export interface NavProps {

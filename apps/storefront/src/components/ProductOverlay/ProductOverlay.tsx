@@ -3,7 +3,8 @@ import { PHGradient } from "@yese/ui";
 import { PALETTES, detailForStorefront, galleryForStorefront } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
-import { IconArrowLeft, IconBag, IconCheck, IconClose, IconHeart, IconHeartOutline } from "./icons";
+import { formatGBP } from "~/lib/format";
+import { IconArrowLeft, IconBag, IconCheck, IconClose, IconHeart, IconHeartOutline } from "../icons";
 import styles from "./ProductOverlay.module.css";
 
 export interface ProductOverlayProps {
@@ -124,7 +125,7 @@ export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
                   {product.cat} · {detail.madeIn}
                 </span>
                 <h2 className={styles.name}>{product.name}</h2>
-                <div className={styles.price}>£{product.price}</div>
+                <div className={styles.price}>{formatGBP(product.price)}</div>
 
                 <p className={styles.story}>{detail.story}</p>
 
@@ -169,7 +170,7 @@ export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
                         onClose();
                       }}
                     >
-                      <IconBag size={15} /> Add to basket · £{product.price * qty}
+                      <IconBag size={15} /> Add to basket · {formatGBP(product.price * qty)}
                     </button>
                   </div>
                   <div className={styles.reassure}>

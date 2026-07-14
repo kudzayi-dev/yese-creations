@@ -2,7 +2,8 @@ import { PHGradient } from "@yese/ui";
 import { PALETTES, detailForStorefront, galleryForStorefront } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
-import { IconArrowLeft, IconBag, IconCheck, IconHeartOutline } from "./icons";
+import { formatGBP } from "~/lib/format";
+import { IconArrowLeft, IconBag, IconCheck, IconHeartOutline } from "../icons";
 import styles from "./Pdp.module.css";
 
 export interface PdpProps {
@@ -94,7 +95,7 @@ export function Pdp({ product, related }: PdpProps) {
             {product.cat} · {detail.madeIn}
           </span>
           <h1 className={styles.name}>{product.name}</h1>
-          <div className={styles.price}>£{product.price}</div>
+          <div className={styles.price}>{formatGBP(product.price)}</div>
           <p className={styles.story}>{detail.story}</p>
 
           <div className={styles.cols}>
@@ -125,7 +126,7 @@ export function Pdp({ product, related }: PdpProps) {
                 <button aria-label="Increase quantity">+</button>
               </div>
               <button className={`btn btn-primary ${styles.add}`}>
-                <IconBag size={15} /> Add to basket · £{product.price}
+                <IconBag size={15} /> Add to basket · {formatGBP(product.price)}
               </button>
             </div>
             <div className={styles.reassure}>
@@ -151,7 +152,7 @@ export function Pdp({ product, related }: PdpProps) {
                 </div>
                 <div className={styles.relBody}>
                   <h3>{r.name}</h3>
-                  <div className={styles.relPrice}>£{r.price}</div>
+                  <div className={styles.relPrice}>{formatGBP(r.price)}</div>
                 </div>
               </a>
             );

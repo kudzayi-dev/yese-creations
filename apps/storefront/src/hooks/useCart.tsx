@@ -18,6 +18,7 @@ interface CartContextValue {
   incQty: (id: number) => void;
   decQty: (id: number) => void;
   removeItem: (id: number) => void;
+  clearCart: () => void;
   isFav: (id: number) => boolean;
   toggleFav: (id: number) => void;
   drawerOpen: boolean;
@@ -103,6 +104,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map((x) => (x.id === id ? { ...x, qty: Math.max(1, x.qty - 1) } : x)),
     );
   const removeItem = (id: number) => setCart((prev) => prev.filter((x) => x.id !== id));
+  // Stage 17 — called by the confirmation page once Stripe's redirect_status
+  // confirms a successful order, so the basket badge resets for the next
+  // visit (same as the prototype's localStorage.removeItem(CART_KEY)).
+  const clearCart = () => setCart([]);
 
   const toggleFav = (id: number) =>
     setFavs((prev) => {
@@ -122,6 +127,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     incQty,
     decQty,
     removeItem,
+    clearCart,
     isFav,
     toggleFav,
     drawerOpen,

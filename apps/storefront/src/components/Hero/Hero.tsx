@@ -1,5 +1,5 @@
 import { YarnBall, YarnHeart } from "@yese/ui";
-import { IconArrow, IconSpark } from "./icons";
+import { IconArrow, IconSpark } from "../icons";
 import styles from "./Hero.module.css";
 
 function FloatingMotifs() {

@@ -2,8 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import { CATEGORIES } from "@yese/product-data";
 import type { Category, StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
-import { ProductCard } from "./ProductCard";
-import { ProductOverlay } from "./ProductOverlay";
+import { ProductCard } from "../ProductCard";
+import { ProductOverlay } from "../ProductOverlay";
 
 export interface ProductsProps {
   products: StorefrontProduct[];
