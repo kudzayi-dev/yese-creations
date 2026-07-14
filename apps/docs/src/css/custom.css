@@ -1,0 +1,31 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ *
+ * Primary color swapped to Yese Creations' coral brand accent
+ * (--coral: #FF6F61 in the storefront's tokens) so this handover site
+ * feels like part of the same product, not generic Docusaurus green.
+ */
+:root {
+  --ifm-color-primary: #ff6f61;
+  --ifm-color-primary-dark: #ff5140;
+  --ifm-color-primary-darker: #ff4433;
+  --ifm-color-primary-darkest: #ec1e0b;
+  --ifm-color-primary-light: #ff8d82;
+  --ifm-color-primary-lighter: #ff9a90;
+  --ifm-color-primary-lightest: #ffc2bb;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #ff8d82;
+  --ifm-color-primary-dark: #ff7264;
+  --ifm-color-primary-darker: #ff6152;
+  --ifm-color-primary-darkest: #f83718;
+  --ifm-color-primary-light: #ffa89f;
+  --ifm-color-primary-lighter: #ffb6ae;
+  --ifm-color-primary-lightest: #ffdbd7;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
