@@ -15,6 +15,12 @@ import type * as Preset from "@docusaurus/preset-classic";
 // needs that prefix baked in. routeBasePath: "/" on the docs plugin (below)
 // then makes the docs pages live directly at /admin/docs/<slug> instead of
 // /admin/docs/docs/<slug>.
+// Same origin the CMS/admin panel is reachable at. Hardcoded for now,
+// matching how `url` below was already hardcoded before this file grew a
+// second place that needed it — if/when this moves to a real domain, both
+// need updating together.
+const siteUrl = "http://localhost:3001";
+
 const config: Config = {
   title: "Yese Creations — Handover Guide",
   tagline: "How to run your shop day-to-day",
@@ -24,7 +30,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: "http://localhost:3001",
+  url: siteUrl,
   baseUrl: "/admin/docs/",
 
   organizationName: "yese-creations",
@@ -74,10 +80,15 @@ const config: Config = {
           label: "Guides",
         },
         {
-          // "pathname://" tells Docusaurus this is a real absolute path outside
-          // the site's own baseUrl (/admin/docs/) rather than a doc slug to
-          // resolve and broken-link-check against this site's own pages.
-          href: "pathname:///admin",
+          // A fully-qualified URL (protocol included) is the only reliable
+          // way to get Docusaurus's <Link> to leave this alone: "href"
+          // fields still get baseUrl silently prepended to bare absolute
+          // paths (even ones marked "pathname://", which only opts out of
+          // the build-time broken-link check, not the runtime baseUrl
+          // prepending) — that previously sent this link to
+          // /admin/docs/admin instead of /admin. A protocol-qualified URL
+          // is unambiguously external and Docusaurus leaves it untouched.
+          href: `${siteUrl}/admin`,
           label: "Back to admin",
           position: "right",
         },
