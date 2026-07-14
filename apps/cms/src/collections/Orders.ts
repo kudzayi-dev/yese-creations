@@ -1,4 +1,5 @@
-import type { Access, CollectionConfig } from "payload";
+import type { CollectionConfig } from "payload";
+import { createAccess, deleteAccess, readAccess, updateAccess } from "../access/serviceOrAdmin";
 
 // --- Architecture note (load-bearing) ---------------------------------
 // The CMS is the system of record for customer contact/shipping details.
@@ -10,6 +11,16 @@ import type { Access, CollectionConfig } from "payload";
 // once Stripe's signed event confirms the outcome. Stripe only ever sees
 // email (for its own receipt) — never the shipping address.
 //
+// Every order links to a Customers record (find-or-create by email at
+// checkout — see lib/orders.ts) AND keeps its own copy of the
+// contact/shipping fields below. That's intentional, not duplication for
+// its own sake: the fields on THIS order are an immutable snapshot of what
+// was true when it was placed — what actually got shipped where — while
+// the linked Customer is the person's current/most-recent picture, which
+// can drift after this order shipped (they move house, change their
+// phone number, etc). Order fulfillment should always read the order's
+// own fields, never the customer's current ones.
+//
 // Access control: Payload's default (when unspecified) already requires an
 // authenticated admin user for every operation, so an unauthenticated
 // public request is refused by default. But `create` (order placed by an
@@ -19,16 +30,7 @@ import type { Access, CollectionConfig } from "payload";
 // CMS_SERVICE_TOKEN secret (never exposed to the browser), checked via a
 // custom header. Reading/browsing orders in `/admin` still requires a real
 // logged-in admin user; the service token does not grant read/delete.
-const isServiceRequest: (req: { headers: Headers }) => boolean = (req) => {
-  const token = req.headers.get("x-service-token");
-  const expected = process.env["CMS_SERVICE_TOKEN"];
-  return Boolean(expected) && token === expected;
-};
-
-const readAccess: Access = ({ req }) => Boolean(req.user) || isServiceRequest(req);
-const createAccess: Access = ({ req }) => isServiceRequest(req);
-const updateAccess: Access = ({ req }) => Boolean(req.user) || isServiceRequest(req);
-const deleteAccess: Access = ({ req }) => Boolean(req.user);
+// (Shared with Customers — see access/serviceOrAdmin.ts.)
 
 export const Orders: CollectionConfig = {
   slug: "orders",
@@ -43,8 +45,23 @@ export const Orders: CollectionConfig = {
     defaultColumns: ["stripePaymentIntentId", "status", "email", "total", "createdAt"],
     description:
       "Customer orders — the CMS is the system of record for contact/shipping details. Stripe only processes payment.",
+    // Payload's list-view search bar only searches useAsTitle by default
+    // (stripePaymentIntentId here) — that's not what a shop owner will
+    // actually search by day to day, so it's widened to email and name too.
+    listSearchableFields: ["stripePaymentIntentId", "email", "firstName", "lastName"],
   },
   fields: [
+    {
+      name: "customer",
+      type: "relationship",
+      relationTo: "customers",
+      required: true,
+      index: true,
+      admin: {
+        description:
+          "The customer this order belongs to (found-or-created by email at checkout). See the fields below for what was actually shipped to on THIS order specifically.",
+      },
+    },
     {
       name: "status",
       type: "select",

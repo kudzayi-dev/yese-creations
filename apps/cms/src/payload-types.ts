@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     products: Product;
+    customers: Customer;
     orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -81,6 +82,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -264,6 +266,29 @@ export interface Product {
   createdAt: string;
 }
 /**
+ * One record per customer, shared across all of their orders. Kept up to date with their most recent contact/shipping details each time they check out — see an individual Order for what was actually shipped to at the time.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  /**
+   * Looked up by email at checkout — one Customer per email address.
+   */
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  address1: string;
+  address2?: string | null;
+  city: string;
+  postcode: string;
+  country: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Customer orders — the CMS is the system of record for contact/shipping details. Stripe only processes payment.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -271,6 +296,10 @@ export interface Product {
  */
 export interface Order {
   id: number;
+  /**
+   * The customer this order belongs to (found-or-created by email at checkout). See the fields below for what was actually shipped to on THIS order specifically.
+   */
+  customer: number | Customer;
   status: 'pending' | 'paid' | 'payment_failed' | 'refunded';
   /**
    * Join key back to Stripe — the only thing Stripe and the CMS share about this order.
@@ -335,6 +364,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: number | Customer;
       } | null)
     | ({
         relationTo: 'orders';
@@ -486,9 +519,27 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  email?: T;
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  address1?: T;
+  address2?: T;
+  city?: T;
+  postcode?: T;
+  country?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders_select".
  */
 export interface OrdersSelect<T extends boolean = true> {
+  customer?: T;
   status?: T;
   stripePaymentIntentId?: T;
   email?: T;

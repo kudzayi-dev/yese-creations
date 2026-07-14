@@ -6,6 +6,7 @@ import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
+import { Customers } from "./collections/Customers";
 import { Media } from "./collections/Media";
 import { Orders } from "./collections/Orders";
 import { Products } from "./collections/Products";
@@ -39,7 +40,7 @@ export default buildConfig({
       afterNavLinks: ["@/components/DocsNavLink#DocsNavLink"],
     },
   },
-  collections: [Users, Media, Products, Orders],
+  collections: [Users, Media, Products, Customers, Orders],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

@@ -27,6 +27,26 @@ showing its status, the customer's email, and the total. Click a row to see
 the full details: name, delivery address, phone, exactly what they ordered
 (with quantities and prices), and the shipping method they chose.
 
+## Customers vs. Orders
+
+There are two related but different places customer information lives:
+
+- **Customers** — one record per person, found by their email address.
+  This is kept up to date with their most recent name, phone, and address
+  every time they check out. Use this when you want to look someone up by
+  email or see their current details.
+- **Orders** — each order keeps its own copy of the name and address that
+  was used for THAT specific order, frozen at the moment it was placed.
+  Use this when you're packing and posting — it always shows exactly what
+  was true when the order was made, even if that customer has since moved
+  house or updated their phone number.
+
+In practice you'll spend most of your time in Orders day-to-day (it's what
+tells you what to pack and post), and occasionally check Customers if you
+want to look someone up by email or update how their details are recorded
+going forward. To see everything a particular person has ordered, search
+Orders by their email using the search box at the top of the Orders list.
+
 ## How an order's status changes
 
 Every order starts as **Pending payment** the moment a customer submits the

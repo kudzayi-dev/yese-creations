@@ -61,9 +61,87 @@ function serviceToken(): string {
   return token;
 }
 
+interface CustomerContact {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address1: string;
+  address2: string;
+  city: string;
+  postcode: string;
+  country: string;
+}
+
+// One Customer record per email address, shared across every order that
+// person places (apps/cms/src/collections/Customers.ts) — distinct from the
+// contact/shipping fields copied onto each Order itself, which are an
+// immutable snapshot of what was true for THAT order. Looks the customer
+// up by email; if found, refreshes their contact/shipping details to the
+// values from this checkout (their most recent info wins); if not found,
+// creates them. Returns the Customer's id for the Order's `customer`
+// relationship field.
+async function findOrCreateCustomer(contact: CustomerContact): Promise<string | number> {
+  const findRes = await fetch(
+    `${cmsUrl()}/api/customers?where[email][equals]=${encodeURIComponent(contact.email)}&limit=1`,
+    { headers: { "x-service-token": serviceToken() } },
+  );
+  if (!findRes.ok) {
+    const body = await findRes.text().catch(() => "");
+    throw new Error(`Failed to look up customer in CMS (${findRes.status}): ${body}`);
+  }
+  const found = (await findRes.json()) as { docs: Array<{ id: string | number }> };
+  const existing = found.docs[0];
+
+  const payload = {
+    email: contact.email,
+    firstName: contact.firstName,
+    lastName: contact.lastName,
+    phone: contact.phone || undefined,
+    address1: contact.address1,
+    address2: contact.address2 || undefined,
+    city: contact.city,
+    postcode: contact.postcode,
+    country: contact.country,
+  };
+
+  if (existing) {
+    const updateRes = await fetch(`${cmsUrl()}/api/customers/${existing.id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        "x-service-token": serviceToken(),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!updateRes.ok) {
+      const body = await updateRes.text().catch(() => "");
+      throw new Error(`Failed to update customer in CMS (${updateRes.status}): ${body}`);
+    }
+    return existing.id;
+  }
+
+  const createRes = await fetch(`${cmsUrl()}/api/customers`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-service-token": serviceToken(),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!createRes.ok) {
+    const body = await createRes.text().catch(() => "");
+    throw new Error(`Failed to create customer in CMS (${createRes.status}): ${body}`);
+  }
+  const createdJson = (await createRes.json()) as { doc: { id: string | number } };
+  return createdJson.doc.id;
+}
+
 // Called from CheckoutForm.tsx right before confirming payment with Stripe.
-// Creates a "pending" Order in the CMS — the CMS's copy of the customer's
-// contact/shipping details, independent of whatever Stripe ends up storing.
+// Finds-or-creates the Customer record for this email, then creates a
+// "pending" Order in the CMS linked to it — the CMS's copy of the
+// customer's contact/shipping details, independent of whatever Stripe ends
+// up storing.
 export const createOrder = createServerFn({ method: "POST" })
   .validator((data: CreateOrderInput) => data)
   .handler(async ({ data }): Promise<{ id: string | number }> => {
@@ -74,6 +152,18 @@ export const createOrder = createServerFn({ method: "POST" })
     // amounts, same rule as createPaymentIntent in checkout.ts.
     const priced = await priceCart(data.items, data.shippingMethod);
 
+    const customerId = await findOrCreateCustomer({
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      address1: data.address1,
+      address2: data.address2,
+      city: data.city,
+      postcode: data.postcode,
+      country: data.country,
+    });
+
     const res = await fetch(`${cmsUrl()}/api/orders`, {
       method: "POST",
       headers: {
@@ -81,6 +171,7 @@ export const createOrder = createServerFn({ method: "POST" })
         "x-service-token": serviceToken(),
       },
       body: JSON.stringify({
+        customer: customerId,
         status: "pending",
         stripePaymentIntentId: data.paymentIntentId,
         email: data.email,
