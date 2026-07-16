@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PHGradient } from "@yese/ui";
-import { PALETTES, detailForStorefront, galleryForStorefront } from "@yese/product-data";
+import { PALETTES, detailForStorefront, galleryForStorefront, getRelatedStorefrontProducts } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
@@ -10,17 +10,24 @@ import styles from "./ProductOverlay.module.css";
 export interface ProductOverlayProps {
   product: StorefrontProduct | null;
   onClose: () => void;
+  /**
+   * Full product list, used to compute "Others also loved" the same way
+   * the standalone PDP does (see @yese/product-data's
+   * getRelatedStorefrontProducts). The homepage already has this in scope
+   * (Products.tsx's `products` prop) so no extra fetch is needed here.
+   */
+  allProducts: StorefrontProduct[];
 }
 
 // Ported from ProductOverlay in app.jsx — the fast, full-screen in-app detail
-// view opened by a plain click on a ProductCard (Stage 13). Same content as
-// the PDP (Stage 16): both read detailForStorefront()/galleryForStorefront()
-// off the same StorefrontProduct so copy can't drift between the two views
-// (load-bearing constraint #2 from the design handoff). Esc, the Back button,
-// the close (X) button, and Add-to-basket all close it — there's no separate
-// backdrop element to click, since the overlay itself is a full-screen
-// takeover (this matches the source app.jsx exactly; it never had one either).
-export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
+// view opened by a plain click on a ProductCard. Same content as the PDP:
+// both read detailForStorefront()/galleryForStorefront() off the same
+// StorefrontProduct so copy can't drift between the two views (load-bearing
+// constraint #2 from the design handoff). Esc, the Back button, the close (X)
+// button, and Add-to-basket all close it — there's no separate backdrop
+// element to click, since the overlay itself is a full-screen takeover (this
+// matches the source app.jsx exactly; it never had one either).
+export function ProductOverlay({ product, onClose, allProducts }: ProductOverlayProps) {
   const { isFav, toggleFav, addToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState(0);
@@ -48,6 +55,7 @@ export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
   const detail = product ? detailForStorefront(product) : null;
   const gallery = product ? galleryForStorefront(product) : [];
   const view = gallery[active] || gallery[0];
+  const related = product ? getRelatedStorefrontProducts(allProducts, product, 4) : [];
 
   return (
     <div className={`${styles.overlay} ${open ? styles.open : ""}`} aria-hidden={!open}>
@@ -154,6 +162,7 @@ export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
                     <div className={styles.stepper}>
                       <button
                         onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        disabled={qty <= 1}
                         aria-label="Decrease quantity"
                       >
                         −
@@ -179,6 +188,32 @@ export function ProductOverlay({ product, onClose }: ProductOverlayProps) {
                 </div>
               </div>
             </div>
+
+            {related.length > 0 && (
+              <section className={styles.related}>
+                <h2>Others also loved</h2>
+                <div className={styles.relatedGrid}>
+                  {related.map((r) => {
+                    const photo = r.photos[0];
+                    return (
+                      <a key={r.id} className={styles.rel} href={`/product/${r.slug}`}>
+                        <div className={styles.relImg}>
+                          {photo ? (
+                            <img className="prod-photo" src={photo.sizes.card.url} alt={r.name} />
+                          ) : (
+                            <PHGradient palette={PALETTES[r.palette]!} motif={r.motif} />
+                          )}
+                        </div>
+                        <div className={styles.relBody}>
+                          <h3>{r.name}</h3>
+                          <div className={styles.relPrice}>{formatGBP(r.price)}</div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
           </div>
         </>
       )}

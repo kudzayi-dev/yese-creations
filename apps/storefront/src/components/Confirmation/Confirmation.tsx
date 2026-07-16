@@ -24,7 +24,7 @@ function readOrGenerateOrderNumber(): string {
   return n;
 }
 
-// Stage 17 — order confirmation, state-driven by Stripe's redirect_status
+// Order confirmation, state-driven by Stripe's redirect_status
 // query param (see routes/confirmation.tsx's validateSearch). Per the
 // handoff: this browser-side read is provisional UI only — the webhook
 // (api.webhooks.stripe.ts) is the trustworthy signal a payment succeeded,
@@ -139,7 +139,7 @@ export function Confirmation({ redirectStatus }: ConfirmationProps) {
         </p>
 
         <div className={styles.actions}>
-          <a className="btn btn-primary" href="/#shop">
+          <a className="btn btn-primary" href="/">
             Continue shopping
           </a>
         </div>

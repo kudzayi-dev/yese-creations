@@ -5,7 +5,8 @@ import { MOTIFS, PALETTES } from "@yese/product-data";
 export const Route = createFileRoute("/dev/ph-demo")({
   loader: () => {
     // Dev-only: this route (and the demo it renders) should never ship to
-    // production. Remove this file once Stage 11 fidelity is confirmed.
+    // production — a quick visual diff tool for placeholder-art motifs
+    // against the design handoff, not a real page.
     if (!import.meta.env.DEV) throw notFound();
   },
   component: PhDemoPage,

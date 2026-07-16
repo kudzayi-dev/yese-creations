@@ -11,7 +11,7 @@ import { CheckoutForm } from "./CheckoutForm";
 import { IconChevronRight } from "../icons";
 import styles from "./Checkout.module.css";
 
-// Stage 17 — the real checkout, following the shared cart (Stage 14). Ports
+// The real checkout, following the shared cart (hooks/useCart). Ports
 // checkout.html's layout/copy 1:1 (co-nav, co-steps, address form, shipping
 // radios, Stripe Payment Element, sticky order summary) but replaces the
 // prototype's STUB_createPaymentIntent()/hardcoded key with a real
@@ -91,7 +91,7 @@ export function Checkout() {
         <main className={styles.empty}>
           <strong className={styles.emptyTitle}>Your basket is empty</strong>
           <p>
-            Nothing to check out yet — <a href="/#shop">head back to the shop</a>.
+            Nothing to check out yet — <a href="/">head back to the shop</a>.
           </p>
         </main>
       </>

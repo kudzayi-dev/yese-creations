@@ -9,6 +9,8 @@
     "start": "next start -p 3001",
     "generate:types": "payload generate:types",
     "seed": "payload run src/scripts/seed.ts",
+    "seed:feedback": "payload run src/scripts/seed-feedback.ts",
+    "clean:products": "payload run src/scripts/clean-products.ts",
     "payload": "payload",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .turbo .next node_modules *.tsbuildinfo"
@@ -18,9 +20,11 @@
     "@payloadcms/next": "3.86.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@yese/product-data": "workspace:*",
+    "dotenv": "^16.4.5",
     "graphql": "16.14.2",
     "next": "16.2.10",
     "payload": "3.86.0",
+    "pg": "8.20.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "0.35.3"

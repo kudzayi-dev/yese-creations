@@ -10,21 +10,22 @@ import {
 import { getRelatedStorefrontProducts, detailForStorefront } from "@yese/product-data";
 import { Pdp } from "~/components/Pdp";
 
-// Stage 16 — the real, server-rendered PDP. `/product/<slug>`, no extension
-// (the prototype's PDPs were `product/<slug>.html`). Content here MUST render
+// The real, server-rendered PDP. `/product/<slug>`, no extension (the
+// prototype's PDPs were `product/<slug>.html`). Content here MUST render
 // in the initial server HTML (load-bearing constraint #1) — verify with
 // view-source / curl, not just the browser after hydration.
 //
-// SEO head (title/meta/canonical/OG/Twitter/JSON-LD) is Stage 18 (below).
-// Client interactivity (gallery switching, qty stepper, add-to-basket,
-// wishlist) is Stage 19 — this route only renders the correct initial state.
+// SEO head (title/meta/canonical/OG/Twitter/JSON-LD) is built in head()
+// below. Client interactivity (gallery switching, qty stepper, add-to-basket,
+// wishlist) lives in Pdp.tsx — this route just supplies the initial state.
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
     const product = await getProductBySlug({ data: params.slug });
     if (!product) throw notFound();
 
-    // Only 10 products total (Stage 07) — fetching the full list to compute
-    // "More from the studio" is cheap. Revisit if the catalog grows.
+    // 186 products post-migration — still cheap enough to fetch the full list
+    // to compute "Others also loved". Revisit (paginate / dedicated
+    // related-products endpoint) if the catalog grows substantially further.
     const all = await getAllProducts();
     const related = getRelatedStorefrontProducts(all, product, 4);
 

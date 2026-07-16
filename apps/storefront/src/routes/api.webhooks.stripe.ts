@@ -1,15 +1,16 @@
 /**
  * api.webhooks.stripe.ts — Stripe webhook endpoint. `/api/webhooks/stripe`.
  *
- * Stage 17. This — NOT the browser's post-payment redirect read on
- * /confirmation — is the trustworthy signal that a payment actually
- * succeeded (per the handoff's Backend Requirements section). Verifies the
+ * This — NOT the browser's post-payment redirect read on /confirmation —
+ * is the trustworthy signal that a payment actually succeeded (per the
+ * checkout design handoff's Backend Requirements section). Verifies the
  * Stripe-Signature header against STRIPE_WEBHOOK_SECRET before trusting the
  * payload at all.
  *
- * Order persistence is stubbed (logged) rather than fully implemented — see
- * the TODO below and Stage 17's Status/outcome note. Wiring this to a real
- * orders table/email send is a reasonable follow-up once one exists.
+ * Order persistence is real (see lib/orders.ts's markOrderPaid/
+ * markOrderFailed, and createOrder called from CheckoutForm.tsx before the
+ * PaymentIntent is confirmed) — this is the source of truth that flips an
+ * Order from "pending" to "paid"/"failed", not just a logging stub.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import type Stripe from "stripe";

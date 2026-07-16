@@ -1,6 +1,26 @@
 import { YarnBall, YarnHeart } from "@yese/ui";
-import { IconArrow, IconSpark } from "../icons";
+import { IconArrow } from "../icons";
+import { scrollToSection } from "~/lib/scrollToSection";
 import styles from "./Hero.module.css";
+
+export interface HeroProps {
+  /**
+   * Homepage section feature flags (site-settings CMS global) — same prop
+   * shape/source as Nav's sectionFlags. "Commission a piece" links to
+   * #bespoke, so it's gated behind sectionFlags.bespoke: showing it while
+   * the Bespoke section itself is hidden would dead-end the CTA. Defaults
+   * to off (fail-closed), matching Nav.
+   *
+   * (The "Made entirely by me" / "One-of-one pieces" / "Signed on the
+   * back" / "Slow, never rushed" value pills that used to sit here were
+   * removed — TrustBand right below covers the same ground better.)
+   */
+  sectionFlags?: {
+    bespoke: boolean;
+  };
+}
+
+const DEFAULT_FLAGS = { bespoke: false };
 
 function FloatingMotifs() {
   return (
@@ -21,7 +41,7 @@ function FloatingMotifs() {
   );
 }
 
-export function Hero() {
+export function Hero({ sectionFlags = DEFAULT_FLAGS }: HeroProps = {}) {
   return (
     <section className={`${styles.hero} paper-bg`}>
       <FloatingMotifs />
@@ -46,48 +66,14 @@ export function Hero() {
           have <em>one made-by-hand thing</em> than ten mass-produced ones.
         </p>
         <div className={styles.heroCtas}>
-          <a href="#shop" className="btn btn-primary">
+          <a href="#shop" className="btn btn-primary" onClick={(e) => scrollToSection(e, "shop")}>
             Shop the collection <IconArrow size={16} />
           </a>
-          <a href="#bespoke" className="btn btn-ghost">
-            Commission a piece
-          </a>
-        </div>
-        <div className={styles.heroValues}>
-          <span className={styles.pill}>
-            <span className={styles.swatch} style={{ background: "var(--coral)" }} /> Made entirely by me
-          </span>
-          <span className={styles.pill}>
-            <span className={styles.swatch} style={{ background: "var(--turq)" }} /> One-of-one pieces
-          </span>
-          <span className={styles.pill}>
-            <span className={styles.swatch} style={{ background: "var(--gold)" }} /> Signed on the back
-          </span>
-          <span className={styles.pill}>
-            <span className={styles.swatch} style={{ background: "var(--plum)" }} /> Slow, never rushed
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.heroStage}>
-        <div className={`${styles.ring} anim-spin-slow`} />
-        <div className={styles.blob} />
-        <div className={styles.logoHalo}>
-          <img src="/assets/yese-logo.png" alt="Yese Creations logo" />
-        </div>
-        <div className={`${styles.chip} anim-drift ${styles.chipTopLeft}`}>
-          <span className={styles.dot} style={{ background: "#FF6F61" }} /> 100% hand-crocheted
-        </div>
-        <div className={`${styles.chip} anim-drift-rev ${styles.chipBottomRight}`}>
-          <span className={styles.dot} style={{ background: "#F2B233" }} /> Made-to-order ready
-        </div>
-        <div className={`${styles.chip} anim-drift ${styles.chipMidLeft}`}>
-          <IconSpark size={14} /> Last bouquet in 48h
-        </div>
-        <div className={styles.waxStamp}>
-          Studio
-          <br />
-          of <small>One</small>
+          {sectionFlags.bespoke && (
+            <a href="#bespoke" className="btn btn-ghost" onClick={(e) => scrollToSection(e, "bespoke")}>
+              Commission a piece
+            </a>
+          )}
         </div>
       </div>
     </section>

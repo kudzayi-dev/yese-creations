@@ -2,6 +2,16 @@
 .titleRow {
   margin-bottom: 36px;
 }
+.seeAll {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--coral);
+  white-space: nowrap;
+}
+.seeAll:hover {
+  text-decoration: underline;
+}
 .reviews {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -15,10 +25,42 @@
   box-shadow: var(--shadow-soft);
   position: relative;
 }
+.catTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 10px;
+}
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 .stars {
   color: var(--gold);
   letter-spacing: 2px;
   font-size: 16px;
+}
+.verifiedBadge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: rgba(43, 182, 196, 0.14);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.source {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.75;
 }
 .review p {
   font-size: 16px;
@@ -43,6 +85,10 @@
   font-weight: 700;
   font-family: var(--font-display);
 }
+.avSourced {
+  background: var(--cream-deep);
+  color: var(--teal-deep);
+}
 .who small {
   display: block;
   font-size: 12px;
@@ -50,6 +96,8 @@
 }
 .who strong {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 16px;
   color: var(--teal-deep);
 }

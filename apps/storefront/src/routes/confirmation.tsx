@@ -9,7 +9,7 @@ function parseRedirectStatus(value: unknown): RedirectStatus {
     : undefined;
 }
 
-// Stage 17 — /confirmation. Stripe's confirmPayment() redirect_url (set in
+// /confirmation. Stripe's confirmPayment() redirect_url (set in
 // Checkout.tsx) points here; Stripe appends ?redirect_status=... (and
 // payment_intent/payment_intent_client_secret, unused here) automatically.
 export const Route = createFileRoute("/confirmation")({

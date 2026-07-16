@@ -45,6 +45,8 @@
 }
 .brandName {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 21px;
 }
 .brandTag {
@@ -89,6 +91,8 @@
 
 .h2 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 26px;
   margin: 0 0 18px;
   color: var(--teal-deep);
@@ -168,6 +172,7 @@
 }
 .shipOptAmt {
   font-family: var(--font-display);
+  font-weight: 500;
   font-size: 16px;
   color: var(--plum);
 }
@@ -233,6 +238,8 @@
 }
 .summary h3 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 20px;
   margin: 0 0 18px;
   color: var(--teal-deep);
@@ -265,6 +272,7 @@
 }
 .linePrice {
   font-family: var(--font-display);
+  font-weight: 500;
   font-size: 15px;
   color: var(--plum);
 }
@@ -311,6 +319,7 @@
 }
 .totalsGrand strong {
   font-family: var(--font-display);
+  font-weight: 500;
   font-size: 22px;
   color: var(--plum);
 }
@@ -324,6 +333,8 @@
 }
 .emptyTitle {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 22px;
   color: var(--teal-deep);
   display: block;

@@ -56,6 +56,8 @@
 }
 .brand span {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 19px;
   color: var(--teal-deep);
 }
@@ -202,6 +204,8 @@
 }
 .name {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: clamp(34px, 4vw, 50px);
   line-height: 1.02;
   color: var(--teal-deep);
@@ -209,6 +213,7 @@
 }
 .price {
   font-family: var(--font-display);
+  font-weight: 500;
   font-size: 30px;
   color: var(--plum);
 }
@@ -323,6 +328,14 @@
   background: var(--coral);
   color: var(--paper);
 }
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.stepper button:disabled:hover {
+  background: var(--cream-deep);
+  color: var(--teal-deep);
+}
 .stepper span {
   font-size: 16px;
   font-weight: 600;
@@ -364,5 +377,76 @@
   }
   .brand span {
     display: none;
+  }
+}
+
+/* Related products ("More from the studio") — ported from Pdp.module.css's
+   .related/.relatedGrid/.rel rules so the overlay's upsell section matches
+   the standalone PDP's exactly (added same session the gap was noticed). */
+.related {
+  max-width: 1240px;
+  margin: 48px auto 0;
+  padding: 34px clamp(20px, 3.5vw, 48px) 0;
+  border-top: 1px dashed rgba(14, 59, 67, 0.14);
+}
+.related h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  font-size: 26px;
+  color: var(--teal-deep);
+  margin: 0 0 22px;
+}
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  padding-bottom: 40px;
+}
+.rel {
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--cream);
+  border: 1px solid rgba(14, 59, 67, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -22px rgba(8, 35, 41, 0.4);
+}
+.relImg {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.relImg > :global(.ph),
+.relImg > :global(.prod-photo) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.relBody {
+  padding: 14px 16px 16px;
+}
+.relBody h3 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  font-size: 17px;
+  color: var(--teal-deep);
+  margin: 0 0 4px;
+  line-height: 1.15;
+}
+.relPrice {
+  color: var(--plum);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+@media (max-width: 980px) {
+  .relatedGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

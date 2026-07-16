@@ -82,6 +82,8 @@
 }
 .label h3 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 20px;
   color: var(--teal-deep);
   margin: 0;
@@ -95,6 +97,7 @@
 }
 .priceArt {
   font-family: var(--font-display);
+  font-weight: 500;
   color: var(--plum);
   font-size: 18px;
   white-space: nowrap;
@@ -149,6 +152,8 @@
 }
 .blurb {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   color: var(--teal-deep);
   font-size: 20px;
 }

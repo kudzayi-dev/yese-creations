@@ -22,10 +22,24 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
-import { fetchAllProducts, fetchProductBySlug } from "./cms";
+import {
+  fetchAllProducts,
+  fetchProductBySlug,
+  fetchHomepageSectionFlags,
+  fetchFeaturedFeedback,
+  fetchAllFeedback,
+} from "./cms";
 
 export const getAllProducts = createServerFn().handler(async () => {
   return fetchAllProducts();
+});
+
+// CMS-driven feature flags for homepage sections that aren't ready for real
+// customers yet (Original Artworks / How I make each piece / Studio
+// Journal). Same createServerFn pattern as getAllProducts — see the module
+// doc comment above for why this can't just be a bare cms.ts import.
+export const getHomepageSectionFlags = createServerFn().handler(async () => {
+  return fetchHomepageSectionFlags();
 });
 
 export const getProductBySlug = createServerFn()
@@ -33,3 +47,13 @@ export const getProductBySlug = createServerFn()
   .handler(async ({ data: slug }) => {
     return fetchProductBySlug(slug);
   });
+
+// Homepage highlight row (2-3 "featured" entries).
+export const getFeaturedFeedback = createServerFn().handler(async () => {
+  return fetchFeaturedFeedback();
+});
+
+// Full list for the standalone /feedback page.
+export const getAllFeedback = createServerFn().handler(async () => {
+  return fetchAllFeedback();
+});

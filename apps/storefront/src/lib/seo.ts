@@ -1,12 +1,12 @@
 /**
- * seo.ts — Stage 18. Pure helpers for building the PDP's server-rendered SEO
+ * seo.ts — Pure helpers for building the PDP's server-rendered SEO
  * head: title/description fallbacks, absolute OG image selection, and the
  * JSON-LD Product payload.
  *
  * Source shape: design_handoff_yese_shop/product/goddess-amigurumi-doll.html's
  * <head> (meta/OG/Twitter/JSON-LD block). Ported to real data — title/description
- * prefer the CMS's own metaTitle/metaDescription fields (StorefrontProduct,
- * added alongside Stage 07's read API) and fall back to name/story otherwise.
+ * prefer the CMS's own metaTitle/metaDescription fields (StorefrontProduct)
+ * and fall back to name/story otherwise.
  *
  * Kept as plain functions (no framework imports) so they're usable from the
  * route's head() and easy to unit-test in isolation.
@@ -39,8 +39,8 @@ export function productMetaDescription(product: StorefrontProduct, detail: Produ
   return truncateDescription(detail.story);
 }
 
-// A sensible default OG image (per the stage doc) for products that only
-// have synthesized placeholder art — never leave social cards blank.
+// A sensible default OG image for products that only have synthesized
+// placeholder art — never leave social cards blank.
 export const DEFAULT_OG_IMAGE_PATH = "/assets/yese-logo.png";
 
 // Payload's Media collection has `serverURL` set (payload.config.ts), so

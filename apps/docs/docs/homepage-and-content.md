@@ -6,9 +6,10 @@ sidebar_position: 3
 # Homepage & content sections
 
 This one's a bit different from the other guides, so it's worth reading in
-full: **the homepage's marketing sections are not editable from the admin
-panel today.** Here's exactly what that means in practice, so you know what
-you can change yourself and what needs a developer.
+full: **most of the homepage's marketing copy is still fixed in the code,
+but customer reviews and a handful of "not ready yet" sections are now
+things you can control yourself from the admin panel.** Here's exactly what
+that means in practice.
 
 ## What you CAN change yourself, right now
 
@@ -17,26 +18,54 @@ you can change yourself and what needs a developer.
   Add, edit, or remove a product there and the grid updates immediately.
   See the [Managing products](/managing-products) guide.
 - **Product photos** — uploaded per-product, also covered in that guide.
+- **Customer reviews ("Kind words")** — go to `/admin` → **Feedback**. This
+  is the list behind both the homepage's review strip and the full
+  `/feedback` page. You can:
+  - Add a new review (star rating, quote, which product it's about).
+  - Tick **Featured** on 2–3 of your favourites to choose what shows on the
+    homepage — everything (featured or not) shows on the full `/feedback`
+    page.
+  - Edit or remove any entry.
 
-That's genuinely most of what changes week to week on a handmade-goods
-shop: new pieces, new photos, price changes, sold-out items.
+  At launch, this list was seeded with real feedback pulled from the eBay
+  shop's public feedback profile — eBay only ever shows a masked buyer name
+  (like "j\*\*\*n"), never a real one, so those entries show a "Verified eBay
+  purchase" badge instead of a name. Once you start collecting reviews
+  directly through this site with real customer names, mark those with
+  **Source: App** so they show a real name on the card.
+- **Whether "Original Artworks", "How I make each piece", "Studio Journal"
+  and "Bespoke" show on the homepage** — go to `/admin` → **Site Settings**
+  → **Homepage sections**. Each one is a simple on/off switch. Turn a
+  section on the moment it's actually ready (real photos, finished copy,
+  etc.) — no developer needed, and there's nothing to "publish", it's live
+  the moment you save. The Bespoke switch also hides/shows its nav link, so
+  the menu never points at a section that isn't there.
+- **Whether eBay-sourced reviews show at all** — also in **Site Settings**,
+  under **Feedback**: "Show eBay-sourced reviews". This is on by default
+  since that's most of what you have right now. Once you've collected enough
+  real, in-app reviews (Source: App) to stand on their own, switch this off
+  — the eBay-sourced entries stay safely in the Feedback list, they just stop
+  being shown to customers. No need to delete or re-tag anything.
 
-## What's currently fixed in the code
+That covers most of what changes week to week or month to month on a
+handmade-goods shop: new pieces, new photos, new reviews, and turning
+sections on once they're ready.
 
-Everything else on the homepage — the hero heading ("Crochet & painted
-keepsakes..."), the manifesto section, the "made entirely by me / one-of-one
-pieces" pills, the trust band statistics, the customer reviews/testimonials,
-the footer text, and the newsletter section — is written directly into the
-website's code rather than pulled from the admin panel. That was a deliberate
+## What's still fixed in the code
+
+The hero heading ("Crochet & painted keepsakes..."), the manifesto section,
+the "made entirely by me / one-of-one pieces" pills, the trust band
+statistics, "My Story", the footer text, and the newsletter section are
+still written directly into the website's code. That was a deliberate
 choice early on to match the original design exactly, but it does mean a
-text change to any of those sections needs a developer to edit and redeploy
-the code — it isn't a self-service edit today.
+text change to any of those needs a developer to edit and redeploy the
+code — it isn't a self-service edit today.
 
 If this is going to be a recurring need (e.g. you expect to update the
 homepage copy seasonally, or want to run limited-time banners), it's worth
-asking the developer about adding a small "site content" area to the admin
-panel for just those sections — that's a reasonably contained addition, but
-it isn't built yet, so don't go looking for it.
+asking the developer about extending the same on/off, self-service pattern
+used for reviews and the homepage sections above — it's a reasonably
+contained addition, but it isn't built for these particular sections yet.
 
 ## Practical tips for requesting a copy change
 
@@ -50,13 +79,26 @@ wording, e.g.:
 rather than "update the homepage a bit" — the person making the change can't
 see your intent, only the instruction.
 
+## Two real pages, not just homepage sections
+
+"My Story" and "Kind words" aren't only sections you scroll past on the
+homepage — they're also real, standalone pages at `/about` and `/feedback`.
+That matters for two reasons: they can be shared as direct links (e.g. in an
+email or on social media), and they show up properly in Google search
+results with their own title and description, rather than being buried
+partway down the homepage. Clicking "Our Story" or "Feedback" in the site's
+navigation from anywhere other than the homepage takes you straight to
+these.
+
 ## Section reference
 
 For your own orientation, top to bottom, the homepage is made up of: **Nav**
 (logo, links, basket icon) → **Hero** (headline, intro, stats) →
 **Manifesto** (the big italic statement lines) → **Promise** (the row of
 small icon + text items) → **Trust band** (the dark strip with numbers) →
-**Shop the collection** (your live product grid — the one part you control)
-→ **Gallery** (original artworks) → **Story** → **Reviews** → **Newsletter /
-footer**. Knowing these names helps when describing which part you'd like
-changed.
+**Shop the collection** (your live product grid — the one part you've always
+controlled) → **Original Artworks**, **How I make each piece** and **Studio
+Journal** (each hidden until you switch it on in Site Settings) → **My
+Story** → **Bespoke** (also hidden until switched on) → **Kind words**
+(your live reviews — the ones marked Featured) → **Newsletter / footer**.
+Knowing these names helps when describing which part you'd like changed.

@@ -15,6 +15,8 @@
 }
 .newsHeading {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: clamp(36px, 4vw, 56px);
   color: var(--cream);
   margin: 0;
@@ -109,6 +111,8 @@
 }
 .brandName {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 22px;
   color: var(--cream);
   line-height: 1;
@@ -145,4 +149,87 @@
 
 @media (max-width: 980px) {
   .news, .cols { grid-template-columns: 1fr; }
+}
+
+.signup input:disabled {
+  opacity: 0.6;
+}
+
+.signupError {
+  color: var(--coral-soft);
+  font-size: 12.5px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 460px;
+}
+
+.signupSuccess {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 460px;
+  background: rgba(255, 208, 107, 0.1);
+  border: 1px solid rgba(255, 208, 107, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  position: relative;
+  animation: signup-in 0.35s ease;
+}
+.signupSuccessIcon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--plum-deep);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.signupSuccessClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(251, 241, 227, 0.12);
+  color: rgba(251, 241, 227, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.signupSuccessClose:hover {
+  background: rgba(251, 241, 227, 0.22);
+  color: var(--cream);
+}
+.signupSuccess strong {
+  display: block;
+  color: var(--cream);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding-right: 20px;
+}
+.signupSuccess span {
+  display: block;
+  color: rgba(251, 241, 227, 0.65);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@keyframes signup-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

@@ -29,6 +29,9 @@ importers:
       '@yese/product-data':
         specifier: workspace:*
         version: link:../../packages/product-data
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
       graphql:
         specifier: 16.14.2
         version: 16.14.2
@@ -38,6 +41,9 @@ importers:
       payload:
         specifier: 3.86.0
         version: 3.86.0(graphql@16.14.2)(typescript@5.9.3)
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
       react:
         specifier: ^19.0.0
         version: 19.2.7
@@ -4423,6 +4429,10 @@ packages:
   dot-prop@6.0.1:
     resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
     engines: {node: '>=10'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
 
   drizzle-kit@0.31.7:
     resolution: {integrity: sha512-hOzRGSdyKIU4FcTSFYGKdXEjFsncVwHZ43gY3WU5Bz9j5Iadp6Rh6hxLSQ1IWXpKLBKt/d5y1cpSPcV+FcoQ1A==}
@@ -13399,6 +13409,8 @@ snapshots:
   dot-prop@6.0.1:
     dependencies:
       is-obj: 2.0.0
+
+  dotenv@16.6.1: {}
 
   drizzle-kit@0.31.7:
     dependencies:

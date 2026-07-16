@@ -16,9 +16,10 @@ export interface ProductCardProps {
 
 // Ported from ProductCard in app.jsx. The key interaction to preserve: a
 // plain click on the image/title intercepts navigation and opens the fast
-// in-app overlay (onOpen — real overlay lands in Stage 15); a modifier/middle
-// click or a crawler follows the real `href` to the PDP (Stage 16). The heart
-// and Add buttons stopPropagation so they never trigger onOpen/navigation.
+// in-app overlay (onOpen — see ProductOverlay); a modifier/middle click or
+// a crawler follows the real `href` to the PDP (see routes/product.$slug.tsx).
+// The heart and Add buttons stopPropagation so they never trigger
+// onOpen/navigation.
 export function ProductCard({ product: p, faved, addedFlash, onAdd, onFav, onOpen }: ProductCardProps) {
   const href = `/product/${p.slug}`;
   const cardPhoto = p.photos[0]?.sizes.card.url;

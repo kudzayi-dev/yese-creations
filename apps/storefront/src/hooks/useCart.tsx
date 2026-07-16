@@ -21,9 +21,29 @@ interface CartContextValue {
   clearCart: () => void;
   isFav: (id: number) => boolean;
   toggleFav: (id: number) => void;
+  /**
+   * Drops any favorited ids that don't match a product in `validIds`. Guards
+   * against a stale localStorage entry outliving the product it pointed at
+   * (e.g. a CMS reseed that reassigns ids) — without this, the Nav badge can
+   * show a phantom count that never matches what the WishlistDrawer actually
+   * lists, since the drawer cross-references favIds against the live product
+   * list but the badge count doesn't. Called once the real product list is
+   * known (see WishlistDrawer).
+   */
+  pruneFavs: (validIds: number[]) => void;
+  favCount: number;
+  /** Favorited product ids, for pages that need to filter a product list
+   * down to just the wishlist (e.g. WishlistDrawer). Favs are stored as
+   * bare ids (byte-compatible with the prototype's `yese_favs` localStorage
+   * key), not denormalized product data like CartLine — so any UI showing
+   * favorited products needs its own product list to cross-reference. */
+  favIds: number[];
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
+  favDrawerOpen: boolean;
+  openFavDrawer: () => void;
+  closeFavDrawer: () => void;
   toast: string;
 }
 
@@ -34,13 +54,13 @@ const CartContext = createContext<CartContextValue | null>(null);
 // renders) — the real values are hydrated from localStorage in a mount
 // effect, so the server and first client render always agree and there's no
 // hydration mismatch. A `pageshow` listener re-reads storage so returning via
-// the back button (e.g. from a PDP, once those exist) picks up anything added
-// there.
+// the back button (e.g. from a PDP) picks up anything added there.
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [favs, setFavs] = useState<Set<number>>(new Set());
   const [isHydrated, setIsHydrated] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [favDrawerOpen, setFavDrawerOpen] = useState(false);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -104,7 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map((x) => (x.id === id ? { ...x, qty: Math.max(1, x.qty - 1) } : x)),
     );
   const removeItem = (id: number) => setCart((prev) => prev.filter((x) => x.id !== id));
-  // Stage 17 — called by the confirmation page once Stripe's redirect_status
+  // Called by the confirmation page once Stripe's redirect_status
   // confirms a successful order, so the basket badge resets for the next
   // visit (same as the prototype's localStorage.removeItem(CART_KEY)).
   const clearCart = () => setCart([]);
@@ -118,7 +138,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   const isFav = (id: number) => favs.has(id);
 
+  const pruneFavs = (validIds: number[]) => {
+    const valid = new Set(validIds);
+    setFavs((prev) => {
+      const next = new Set([...prev].filter((id) => valid.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  };
+
   const cartCount = cart.reduce((s, c) => s + c.qty, 0);
+  const favCount = favs.size;
+  const favIds = [...favs];
 
   const value: CartContextValue = {
     cart,
@@ -130,9 +160,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearCart,
     isFav,
     toggleFav,
+    pruneFavs,
+    favCount,
+    favIds,
     drawerOpen,
     openDrawer: () => setDrawerOpen(true),
     closeDrawer: () => setDrawerOpen(false),
+    favDrawerOpen,
+    openFavDrawer: () => setFavDrawerOpen(true),
+    closeFavDrawer: () => setFavDrawerOpen(false),
     toast,
   };
 

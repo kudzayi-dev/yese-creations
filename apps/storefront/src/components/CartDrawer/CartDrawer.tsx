@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { PHGradient } from "@yese/ui";
 import { PALETTES } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
+import { scrollToSection } from "~/lib/scrollToSection";
 import { IconBag, IconClose } from "../icons";
 import styles from "./CartDrawer.module.css";
 
@@ -11,6 +12,7 @@ import styles from "./CartDrawer.module.css";
 // subtotal recomputed from cart; empty state offers a way back to the grid.
 export function CartDrawer() {
   const { cart, drawerOpen, closeDrawer, incQty, decQty, removeItem } = useCart();
+  const isHome = useLocation({ select: (l) => l.pathname === "/" });
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
 
   return (
@@ -35,9 +37,23 @@ export function CartDrawer() {
             </div>
             <strong className={styles.emptyTitle}>Your basket is empty</strong>
             <p>Start adding a little handmade magic.</p>
-            <button className="btn btn-ghost" onClick={closeDrawer}>
+            {/* CartDrawer is mounted globally (__root.tsx), so unlike
+                WishlistDrawer (homepage-only) it can be open on any route.
+                On the homepage, #shop is right there — close + scroll in
+                place. Anywhere else there's nothing to scrollIntoView, so
+                fall through to the real href="/" navigation (the homepage's
+                useScrollToShopFromReferrer picks up the checkout/
+                confirmation/PDP cases automatically on arrival). */}
+            <a
+              href="/"
+              className="btn btn-ghost"
+              onClick={(e) => {
+                closeDrawer();
+                if (isHome) scrollToSection(e, "shop");
+              }}
+            >
               Browse the collection
-            </button>
+            </a>
           </div>
         ) : (
           <>
@@ -56,7 +72,11 @@ export function CartDrawer() {
                     <h5 className={styles.itemName}>{item.name}</h5>
                     <div className={styles.itemPrice}>{formatGBP(item.price)}</div>
                     <div className={styles.qty}>
-                      <button onClick={() => decQty(item.id)} aria-label="Decrease quantity">
+                      <button
+                        onClick={() => decQty(item.id)}
+                        disabled={item.qty <= 1}
+                        aria-label="Decrease quantity"
+                      >
                         −
                       </button>
                       <span>{item.qty}</span>

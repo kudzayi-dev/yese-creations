@@ -12,18 +12,18 @@ export interface PdpProps {
   related: StorefrontProduct[];
 }
 
-// Stage 16 — the standalone, server-rendered twin of ProductOverlay (Stage 15).
-// Reads detailForStorefront()/galleryForStorefront() off the SAME product
-// object the overlay uses, so copy can never drift between the two views
+// The standalone, server-rendered twin of ProductOverlay. Reads
+// detailForStorefront()/galleryForStorefront() off the SAME product object
+// the overlay uses, so copy can never drift between the two views
 // (load-bearing constraint #2). Server-rendered content matches the initial
 // client state below exactly (active=0, qty=1) so hydration never causes a
 // layout shift.
 //
-// Stage 19 — client interactivity layered on top: gallery thumb switching,
-// qty stepper, add-to-basket (shared cart from Stage 14 — NOT a separate
-// localStorage layer, per the stage's gotcha note), and the wishlist heart.
-// The shared Toast (mounted once in __root.tsx, Stage 14) covers this page
-// too — no separate pdp-toast markup needed here; addToCart already shows it.
+// Client interactivity on top of that SSR content: gallery thumb switching,
+// qty stepper, add-to-basket (shared cart from hooks/useCart — NOT a
+// separate localStorage layer), and the wishlist heart. The shared Toast
+// (mounted once in __root.tsx) covers this page too — no separate
+// pdp-toast markup needed here; addToCart already shows it.
 export function Pdp({ product, related }: PdpProps) {
   const { cartCount, openDrawer, addToCart, isFav, toggleFav } = useCart();
   const detail = detailForStorefront(product);
@@ -35,7 +35,7 @@ export function Pdp({ product, related }: PdpProps) {
   const addTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Reset local view/qty state if the route ever renders a different product
-  // without a full remount (e.g. a future client-side nav between PDPs).
+  // without a full remount (e.g. a client-side nav between PDPs).
   useEffect(() => {
     setActive(0);
     setQty(1);
@@ -55,7 +55,7 @@ export function Pdp({ product, related }: PdpProps) {
   return (
     <div className={styles.body}>
       <nav className={styles.nav}>
-        <a className={styles.back} href="/#shop">
+        <a className={styles.back} href="/">
           <IconArrowLeft size={18} />
           Back to shop
         </a>
@@ -73,7 +73,7 @@ export function Pdp({ product, related }: PdpProps) {
       </nav>
 
       <nav className={styles.crumb} aria-label="Breadcrumb">
-        <a href="/">Home</a> · <a href="/#shop">{product.cat}</a> ·{" "}
+        <a href="/">Home</a> · <a href="/">{product.cat}</a> ·{" "}
         <span>{product.name}</span>
       </nav>
 
@@ -155,6 +155,7 @@ export function Pdp({ product, related }: PdpProps) {
               <div className={styles.stepper}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  disabled={qty <= 1}
                   aria-label="Decrease quantity"
                 >
                   −
@@ -187,7 +188,7 @@ export function Pdp({ product, related }: PdpProps) {
       </main>
 
       <section className={styles.related}>
-        <h2>More from the studio</h2>
+        <h2>Others also loved</h2>
         <div className={styles.relatedGrid}>
           {related.map((r) => {
             const photo = r.photos[0];

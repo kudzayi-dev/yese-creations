@@ -1,6 +1,6 @@
 /* Ported from design_handoff_yese_shop/pdp.css. Reuses global tokens + the
-   global .tag/.prod-photo/.btn/.btn-primary/.cart-count rules (tokens.css,
-   Stage 09) — only page-specific layout lives here. */
+   global .tag/.prod-photo/.btn/.btn-primary/.cart-count rules (tokens.css)
+   — only page-specific layout lives here. */
 
 .body {
   background: var(--paper);
@@ -47,7 +47,7 @@
   transform: translateX(-50%);
 }
 .brand img { width: 34px; height: 34px; object-fit: contain; }
-.brandName { font-family: var(--font-display); font-size: 21px; line-height: 1; }
+.brandName { font-family: var(--font-display); font-weight: 300; letter-spacing: -0.01em; font-size: 21px; line-height: 1; }
 .brandTag {
   font-family: var(--font-script);
   font-size: 16px;
@@ -204,12 +204,14 @@
 }
 .name {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: clamp(34px, 4vw, 52px);
   line-height: 1.02;
   color: var(--teal-deep);
   margin: 10px 0 8px;
 }
-.price { font-family: var(--font-display); font-size: 32px; color: var(--plum); }
+.price { font-family: var(--font-display); font-weight: 500; font-size: 32px; color: var(--plum); }
 .story {
   margin: 22px 0 0;
   font-size: 17px;
@@ -292,6 +294,8 @@
   justify-content: center;
 }
 .stepper button:hover { background: var(--coral); color: var(--paper); }
+.stepper button:disabled { opacity: 0.35; cursor: not-allowed; }
+.stepper button:disabled:hover { background: var(--cream-deep); color: var(--teal-deep); }
 .stepper span { font-size: 16px; font-weight: 600; min-width: 18px; text-align: center; }
 .add { flex: 1; justify-content: center; cursor: pointer; }
 .added { background: var(--teal-deep); }
@@ -312,6 +316,8 @@
 }
 .related h2 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 30px;
   color: var(--teal-deep);
   margin: 0 0 24px;
@@ -336,6 +342,8 @@
 .relBody { padding: 14px 16px 16px; }
 .relBody h3 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 17px;
   color: var(--teal-deep);
   margin: 0 0 4px;

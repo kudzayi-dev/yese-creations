@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAllProducts } from "~/lib/products";
+import { getAllProducts, getHomepageSectionFlags, getFeaturedFeedback } from "~/lib/products";
 import { useReveal } from "~/hooks/useReveal";
+import { useScrollToShopFromReferrer } from "~/hooks/useScrollToShopFromReferrer";
 import { useCart } from "~/hooks/useCart";
 import { Nav } from "~/components/Nav";
+import { WishlistDrawer } from "~/components/WishlistDrawer";
 import { Hero } from "~/components/Hero";
 import { TrustBand } from "~/components/TrustBand";
 import { Products } from "~/components/Products";
@@ -15,30 +17,48 @@ import { Reviews } from "~/components/Reviews";
 import { Footer } from "~/components/Footer";
 
 export const Route = createFileRoute("/")({
-  loader: () => getAllProducts(),
+  loader: async () => {
+    const [products, sectionFlags, featuredFeedback] = await Promise.all([
+      getAllProducts(),
+      getHomepageSectionFlags(),
+      getFeaturedFeedback(),
+    ]);
+    return { products, sectionFlags, featuredFeedback };
+  },
   component: HomePage,
 });
 
 function HomePage() {
   useReveal();
-  const products = Route.useLoaderData();
-  const { cartCount, openDrawer } = useCart();
+  useScrollToShopFromReferrer();
+  const { products, sectionFlags, featuredFeedback } = Route.useLoaderData();
+  const { cartCount, favCount, openDrawer, openFavDrawer } = useCart();
 
   return (
     <>
-      <Nav cartCount={cartCount} onCartClick={openDrawer} />
-      <Hero />
+      <Nav
+        cartCount={cartCount}
+        favCount={favCount}
+        onCartClick={openDrawer}
+        onWishlistClick={openFavDrawer}
+        sectionFlags={sectionFlags}
+      />
+      <Hero sectionFlags={sectionFlags} />
       <TrustBand variant="manifesto" />
       <Products products={products} />
-      <Gallery />
+      {sectionFlags.originalArtworks && <Gallery />}
       <Story />
-      <Process />
-      <Moodboard />
-      <Bespoke />
-      <Reviews />
-      <Footer />
-      {/* CartDrawer + Toast render at the root layout (Stage 14) so they're
-          shared across routes. ProductOverlay lands in Stage 15. */}
+      {sectionFlags.process && <Process />}
+      {sectionFlags.studioJournal && <Moodboard />}
+      {sectionFlags.bespoke && <Bespoke />}
+      <Reviews feedback={featuredFeedback} />
+      <Footer sectionFlags={sectionFlags} />
+      <WishlistDrawer products={products} />
+      {/* CartDrawer, Toast, AboutOverlay, and SearchOverlay all render once
+          at the root layout (__root.tsx), shared across every route.
+          ProductOverlay is homepage-specific and renders inside
+          Products.tsx instead, since it's only ever opened from a
+          ProductCard click here. */}
     </>
   );
 }

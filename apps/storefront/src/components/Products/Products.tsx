@@ -11,9 +11,8 @@ export interface ProductsProps {
 
 // Ported from Products in app.jsx. Category filter, the add-flash timer, and
 // the overlay's selected-product state stay local UI state (per-page,
-// ephemeral). Cart/wishlist are shared state from Stage 14's CartProvider so
-// they persist and stay in sync with the Nav badge and (eventually) the PDP
-// routes.
+// ephemeral). Cart/wishlist are shared state from CartProvider (hooks/useCart)
+// so they persist and stay in sync with the Nav badge and the PDP routes.
 export function Products({ products }: ProductsProps) {
   const [cat, setCat] = useState<"All" | Category>("All");
   const [lastAdded, setLastAdded] = useState<number | null>(null);
@@ -69,7 +68,7 @@ export function Products({ products }: ProductsProps) {
           />
         ))}
       </div>
-      <ProductOverlay product={selected} onClose={() => setSelected(null)} />
+      <ProductOverlay product={selected} onClose={() => setSelected(null)} allProducts={products} />
     </section>
   );
 }

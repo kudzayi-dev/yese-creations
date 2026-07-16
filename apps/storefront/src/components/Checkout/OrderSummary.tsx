@@ -12,8 +12,8 @@ export interface OrderSummaryProps {
 }
 
 // Sticky order-summary card (checkout.html's .co-summary) — line items from
-// the shared cart (Stage 14), a UI-only discount input, and the live totals
-// Checkout.tsx recomputes on every shipping-method change.
+// the shared cart (hooks/useCart), a UI-only discount input, and the live
+// totals Checkout.tsx recomputes on every shipping-method change.
 export function OrderSummary({ cart, subtotal, shipping, total }: OrderSummaryProps) {
   return (
     <aside className={styles.summary}>

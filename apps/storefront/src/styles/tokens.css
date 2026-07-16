@@ -25,7 +25,15 @@
   --ink: #1B0F1A;
   --paper: #FFFAF1;
 
-  --font-display: "Yeseva One", "Recoleta", Georgia, serif;
+  /* Design tweak (design_handoff_yese_latest): display font swapped from the
+     heavy "Yeseva One" serif to the same DM Sans used for body copy, at a
+     light weight, for a crisper/lighter feel. Since DM Sans is an actual
+     variable-weight sans (unlike Yeseva One, which only really has one
+     weight), every font-display selector across the app now needs an
+     EXPLICIT font-weight — headings/names/logo use 300 (+ -0.01em tracking),
+     prices/totals/emphasis numerals use 500. Don't rely on browser/tag
+     defaults; see individual component CSS modules. */
+  --font-display: "DM Sans", "Helvetica Neue", system-ui, sans-serif;
   --font-script: "Caveat", "Snell Roundhand", cursive;
   --font-body: "DM Sans", "Helvetica Neue", system-ui, sans-serif;
 
@@ -135,7 +143,7 @@ a { color: inherit; text-decoration: none; }
 
 .h-display {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1.04;
   letter-spacing: -0.01em;
   color: var(--teal-deep);
@@ -255,9 +263,9 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 500px)  { .product-grid { grid-template-columns: 1fr; } }
 
 /* ── Section title row (kicker/H2 + optional filters/CTA) ───
-   Shared across Products (Stage 13), Moodboard, Reviews — added
-   here in Stage 12 since Stage 09 ported it only implicitly via
-   .kicker/.h-display; the flex wrapper itself was missing. ── */
+   Shared across Products, Moodboard, Reviews — lives here
+   rather than in a component's own CSS Module since more than
+   one component uses it. ── */
 .section-title {
   display: flex; justify-content: space-between; align-items: flex-end;
   flex-wrap: wrap; gap: 24px;

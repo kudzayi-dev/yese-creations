@@ -1,9 +1,9 @@
 /**
  * cart-storage.ts — pure localStorage read/write for cart + wishlist.
  *
- * Keys and shapes MUST stay byte-compatible with the prototype (app.jsx) and
- * with pdp.js (Stage 18), since the homepage and the PDP routes read/write the
- * same two keys so they never disagree:
+ * Keys and shapes MUST stay byte-compatible with the prototype (app.jsx and
+ * pdp.js), since the homepage and the PDP routes read/write the same two
+ * keys so they never disagree:
  *   - yese_cart: CartLine[]
  *   - yese_favs: number[] (product ids)
  *

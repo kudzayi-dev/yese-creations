@@ -7,12 +7,13 @@
  * out of any module the client imports is what keeps STRIPE_SECRET_KEY (and
  * the whole `stripe` Node SDK) out of the browser bundle.
  *
- * Architecture boundary (load-bearing, Stage 17 handoff): creating a Stripe
- * PaymentIntent requires the SECRET key and must happen server-side only.
- * The client only ever sends { id, qty } pairs — never prices. Every line
- * price is re-derived here from the CMS (fetchAllProducts(), the same data
- * the storefront's own product pages read), so a tampered client request can
- * only ever charge the real catalog price, never a client-submitted one.
+ * Architecture boundary (load-bearing, per the checkout design handoff):
+ * creating a Stripe PaymentIntent requires the SECRET key and must happen
+ * server-side only. The client only ever sends { id, qty } pairs — never
+ * prices. Every line price is re-derived here from the CMS
+ * (fetchAllProducts(), the same data the storefront's own product pages
+ * read), so a tampered client request can only ever charge the real catalog
+ * price, never a client-submitted one.
  */
 
 import Stripe from "stripe";

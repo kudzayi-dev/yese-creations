@@ -72,6 +72,8 @@ export interface Config {
     products: Product;
     customers: Customer;
     orders: Order;
+    feedback: Feedback;
+    subscribers: Subscriber;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     customers: CustomersSelect<false> | CustomersSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    feedback: FeedbackSelect<false> | FeedbackSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -93,8 +97,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -207,7 +215,7 @@ export interface Product {
    * Auto-generated from the name. Powers the PDP URL — changing it breaks existing links.
    */
   slug?: string | null;
-  cat: 'Bouquets' | 'Home' | 'Plushies' | 'Bags' | 'Accessories' | 'Prints';
+  cat: 'Bouquets' | 'Art' | 'Soft Toys' | 'Accessories' | 'Hats' | 'Prints';
   /**
    * Enter the price in pounds. e.g. 24.99 for £24.99. Stored as pence internally for Stripe.
    */
@@ -330,6 +338,73 @@ export interface Order {
   createdAt: string;
 }
 /**
+ * Customer testimonials. 2-3 marked "Featured" show on the homepage; everything shows on /feedback.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feedback".
+ */
+export interface Feedback {
+  id: number;
+  /**
+   * Controls which card style renders: eBay shows a masked handle + verified-purchase badge, App shows a real name.
+   */
+  source: 'ebay' | 'app';
+  quote: string;
+  /**
+   * eBay doesn't expose a per-review star rating on the public feedback profile (only an overall positive %) — default to 5 for sourced entries, all of which were left as positive/Verified purchase feedback.
+   */
+  rating: number;
+  /**
+   * Free-text product name as it appeared on eBay, or the product this review is about.
+   */
+  productName: string;
+  /**
+   * Which shop category this review is about — powers the /feedback category filter.
+   */
+  cat: 'Bouquets' | 'Art' | 'Soft Toys' | 'Accessories' | 'Hats' | 'Prints';
+  /**
+   * Masked eBay buyer ID, e.g. "j***n" — exactly as shown on the public feedback profile. Only used when source is eBay.
+   */
+  buyerHandle?: string | null;
+  /**
+   * Real name, shown for in-app named reviews only.
+   */
+  customerName?: string | null;
+  /**
+   * Shows the "Verified purchase" badge. True for all sourced eBay feedback.
+   */
+  verified?: boolean | null;
+  /**
+   * Show this one on the homepage highlight row (keep this to 2-3 entries).
+   */
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Stitch club mailing list — one record per subscribed email, submitted from the homepage footer's signup form.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  /**
+   * Looked up by email on signup — resubmitting the same address is a no-op, not an error.
+   */
+  email: string;
+  /**
+   * Where the signup came from — defaults to the only signup point that exists today.
+   */
+  source?: string | null;
+  /**
+   * Manually flipped by an admin on an unsubscribe request — no self-service unsubscribe flow exists yet.
+   */
+  unsubscribed?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -372,6 +447,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'feedback';
+        value: number | Feedback;
+      } | null)
+    | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -570,6 +653,34 @@ export interface OrdersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feedback_select".
+ */
+export interface FeedbackSelect<T extends boolean = true> {
+  source?: T;
+  quote?: T;
+  rating?: T;
+  productName?: T;
+  cat?: T;
+  buyerHandle?: T;
+  customerName?: T;
+  verified?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  source?: T;
+  unsubscribed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -607,6 +718,58 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * Turn a section off if it isn't ready for real customers yet (no real content, still being designed, etc). Off means it's skipped entirely — not shown empty or as a placeholder.
+   */
+  homepageSections?: {
+    originalArtworks?: boolean | null;
+    process?: boolean | null;
+    studioJournal?: boolean | null;
+    /**
+     * Also controls the "Bespoke" nav link — off hides both the section and the link, so the nav never points at a section that isn't on the page.
+     */
+    bespoke?: boolean | null;
+  };
+  /**
+   * Controls which testimonials the storefront shows on the homepage and /feedback.
+   */
+  feedback?: {
+    /**
+     * On launch, all feedback is migrated from the eBay store (masked buyer handle, no real name). Turn this off once there's enough organic in-app feedback (source: App) to stand on its own — eBay-sourced entries stay in the CMS but stop being returned to the storefront, no need to delete or re-tag them.
+     */
+    showEbaySourced?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  homepageSections?:
+    | T
+    | {
+        originalArtworks?: T;
+        process?: T;
+        studioJournal?: T;
+        bespoke?: T;
+      };
+  feedback?:
+    | T
+    | {
+        showEbaySourced?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -8,8 +8,12 @@ import type { ReactNode } from "react";
 
 import "../styles/tokens.css";
 import { CartProvider } from "~/hooks/useCart";
+import { AboutOverlayProvider } from "~/hooks/useAboutOverlay";
+import { SearchOverlayProvider } from "~/hooks/useSearchOverlay";
 import { CartDrawer } from "~/components/CartDrawer";
 import { Toast } from "~/components/Toast";
+import { AboutOverlay } from "~/components/AboutOverlay";
+import { SearchOverlay } from "~/components/SearchOverlay";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -26,8 +30,12 @@ export const Route = createRootRoute({
         crossOrigin: "anonymous",
       },
       {
+        // Yeseva One dropped (design tweak — display font is now DM Sans,
+        // see tokens.css). DM Sans weight 300 added for the new light-weight
+        // heading/name/logo look; existing 400-700 weights stay for body
+        // copy, prices/totals (500), and bold UI bits.
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Yeseva+One&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:wght@300;400;500;600;700&display=swap",
       },
     ],
   }),
@@ -42,9 +50,15 @@ function RootDocument({ children }: { children?: ReactNode }) {
       </head>
       <body>
         <CartProvider>
-          <Outlet />
-          <CartDrawer />
-          <Toast />
+          <AboutOverlayProvider>
+            <SearchOverlayProvider>
+              <Outlet />
+              <CartDrawer />
+              <Toast />
+              <AboutOverlay />
+              <SearchOverlay />
+            </SearchOverlayProvider>
+          </AboutOverlayProvider>
         </CartProvider>
         <Scripts />
       </body>

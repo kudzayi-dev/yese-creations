@@ -42,14 +42,22 @@ step while iterating. (Production should switch to generated migrations.)
 - `dev` — Next dev server on :3001
 - `build` / `start` — production build / serve
 - `generate:types` — writes `src/payload-types.ts` from the Payload config
+- `seed` — seeds the full product catalog (186 products, migrated from eBay) + media
+- `seed:feedback` — seeds customer feedback (migrated from the eBay store's public feedback
+  profile); both seed scripts are idempotent, safe to re-run
+- `clean:products` — dev utility to wipe the Products collection
 - `payload` — the Payload CLI (migrations, etc.)
 - `typecheck` — `tsc --noEmit`
 
 ## Layout
 
-- `src/payload.config.ts` — Payload config (postgres adapter, collections, secret)
-- `src/collections/` — collection definitions (currently just `Users` auth;
-  Products/Media/ProductDetails land in later stages)
+- `src/payload.config.ts` — Payload config (postgres adapter, collections, globals, secret)
+- `src/collections/` — `Users` (auth), `Products`, `Media`, `Customers`, `Orders`, `Feedback`
+  (customer testimonials/reviews — see `Feedback.ts` for the `source: "ebay" | "app"` field that
+  drives which card style the storefront renders)
+- `src/globals/` — `SiteSettings` (site-wide feature flags: which homepage marketing sections are
+  live, and whether eBay-sourced feedback is shown — see `SiteSettings.ts`)
+- `src/scripts/` — `seed.ts` (products), `seed-feedback.ts` (feedback), `clean-products.ts`
 - `src/app/(payload)/` — the Next route group Payload serves the admin + API from
 - `src/payload-types.ts` — generated; do not edit by hand
 

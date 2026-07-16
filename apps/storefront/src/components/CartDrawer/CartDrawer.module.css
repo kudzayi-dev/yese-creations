@@ -40,6 +40,8 @@
 }
 .head h3 {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 24px;
   margin: 0;
   color: var(--teal-deep);
@@ -68,6 +70,8 @@
 .itemName {
   margin: 0;
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 16px;
   color: var(--teal-deep);
   line-height: 1.2;
@@ -99,6 +103,14 @@
   background: var(--coral);
   color: var(--paper);
 }
+.qty button:not(.remove):disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.qty button:not(.remove):disabled:hover {
+  background: var(--cream-deep);
+  color: var(--teal-deep);
+}
 .qty span {
   font-size: 13px;
   font-weight: 600;
@@ -123,6 +135,7 @@
 }
 .linePrice {
   font-family: var(--font-display);
+  font-weight: 500;
   color: var(--plum);
   font-size: 18px;
 }
@@ -145,6 +158,7 @@
 }
 .total strong {
   font-family: var(--font-display);
+  font-weight: 500;
   font-size: 28px;
   color: var(--plum);
 }
@@ -178,6 +192,8 @@
 }
 .emptyTitle {
   font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
   font-size: 22px;
   color: var(--teal-deep);
 }

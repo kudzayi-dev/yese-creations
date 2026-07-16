@@ -3,10 +3,15 @@
 Full-stack storefront for **Yese Creations** — a one-woman handmade-goods shop (crochet,
 plushies, prints, home goods). A pnpm/Turborepo monorepo:
 
-- `apps/cms` — Payload CMS 3.x (Next.js-hosted), backed by Postgres. Owns all product data.
-- `apps/storefront` — TanStack Start (React SSR). Reads products from the CMS at request/build
-  time; renders the homepage grid, a fast in-app product overlay, and dedicated server-rendered
-  Product Detail Pages (`/product/<slug>`) with full SEO (title/meta/canonical/OG/Twitter/JSON-LD).
+- `apps/cms` — Payload CMS 3.x (Next.js-hosted), backed by Postgres. Owns all product data,
+  customer feedback/testimonials, and site-wide feature flags (`site-settings` global).
+- `apps/storefront` — TanStack Start (React SSR). Reads products and feedback from the CMS at
+  request/build time; renders the homepage grid, a fast in-app product overlay, and dedicated
+  server-rendered pages — Product Detail Pages (`/product/<slug>`), `/feedback` (full customer
+  review list) and `/about` (the maker's story) — each with full SEO (title/meta/canonical/OG/
+  Twitter, plus JSON-LD on PDPs). `/about` and reviews also have a fast in-app overlay/inline-section
+  view for browsing without a full page load; the standalone routes exist for sharing and search
+  indexing (see `apps/docs/docs/homepage-and-content.md` for the non-technical version of this).
 - `packages/product-data` — shared TypeScript types/enums + dev seed data (source of truth for
   both apps, so they can't drift).
 - `packages/ui` — shared placeholder art component (`PHGradient`) used wherever a product has no
@@ -70,17 +75,25 @@ an admin user through the UI before the API/seed script can authenticate against
 pnpm --filter @yese/cms dev
 ```
 
-Visit `http://localhost:3001/admin` and create the first user. Once that's done, seed the 10
-products + their media:
+Visit `http://localhost:3001/admin` and create the first user. Once that's done, seed the product
+catalog (186 real products, migrated from the yesecreations eBay store) + their media:
 
 ```sh
 pnpm --filter @yese/cms seed
 ```
 
-The seed script is idempotent (matches on slug/filename, safe to re-run) and reads real image
-files from `design_handoff_yese_shop/assets/` — **that folder is a real runtime dependency of the
-seed script, not just a design reference; do not delete it** (this corrects an earlier planning
-note in `.plan/stages/21-wiring-e2e.md` that called it safe to remove).
+Then seed customer feedback (real eBay buyer feedback, also migrated from the same store —
+masked buyer handles, no real names, since that's all eBay's public feedback profile exposes):
+
+```sh
+pnpm --filter @yese/cms seed:feedback
+```
+
+Both seed scripts are idempotent (matches on slug/filename/quote+handle, safe to re-run). The
+product seed reads real image files from `design_handoff_yese_shop/assets/` — **that folder is a
+real runtime dependency of the seed script, not just a design reference; do not delete it** (this
+corrects an earlier planning note in `.plan/stages/21-wiring-e2e.md` that called it safe to
+remove).
 
 ## 5. Run both apps
 
@@ -115,6 +128,17 @@ isn't up (or hasn't been seeded), the homepage grid renders empty and individual
 - Cart/wishlist state lives entirely client-side (`localStorage`, keys `yese_cart`/`yese_favs`),
   shared by the homepage, the fast in-app overlay, and every PDP — adding to the basket on a PDP
   and navigating back to the homepage shows the same basket count.
+- CMS-driven feature flags (`site-settings` global, admin: **Site Settings**): which homepage
+  marketing sections are shown (Original Artworks / How I make each piece / Studio Journal /
+  Bespoke, all default OFF until an editor turns them on), and whether eBay-sourced feedback
+  entries are shown to customers (`feedback.showEbaySourced`, defaults ON). The storefront
+  re-fetches this global on every request — no caching — so toggling a flag in `/admin` takes
+  effect immediately, no redeploy or server restart. See `apps/storefront/src/lib/cms.ts`.
+- The **Feedback** collection is the single source for both the homepage's featured-reviews strip
+  and the full `/feedback` page — same "one data source, two views" pattern as products/overlay/PDP.
+  Each entry has a `source` (`ebay` | `app`) that decides which card style renders: eBay-sourced
+  entries show a masked buyer handle + "Verified eBay purchase" badge (eBay never exposes a real
+  name); `app` entries show a real customer name. See `FeedbackCard.tsx`.
 
 ## Build / SSG
 

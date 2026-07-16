@@ -2,6 +2,7 @@ import { PHGradient } from "@yese/ui";
 import { PALETTES } from "@yese/product-data";
 import type { Motif } from "@yese/product-data";
 import { formatGBP } from "~/lib/format";
+import { scrollToSection } from "~/lib/scrollToSection";
 import { IconArrow } from "../icons";
 import styles from "./Gallery.module.css";
 
@@ -41,7 +42,7 @@ export function Gallery() {
             world.
           </p>
         </div>
-        <a href="#bespoke" className="btn btn-ghost">
+        <a href="#bespoke" className="btn btn-ghost" onClick={(e) => scrollToSection(e, "bespoke")}>
           Commission a painting <IconArrow size={14} />
         </a>
       </div>
@@ -83,7 +84,7 @@ export function Gallery() {
         <div className={styles.blurb}>
           Don't see it? <span className={styles.script}>Commission</span> something just for you.
         </div>
-        <a href="#bespoke" className="btn btn-primary">
+        <a href="#bespoke" className="btn btn-primary" onClick={(e) => scrollToSection(e, "bespoke")}>
           Start a commission <IconArrow size={14} />
         </a>
       </div>

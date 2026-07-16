@@ -24,9 +24,10 @@
 }
 .name {
   font-family: var(--font-display);
+  font-weight: 300;
   font-size: 22px;
   color: var(--teal-deep);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   line-height: 1;
 }
 .tagline {

@@ -7,7 +7,7 @@ import styles from "./Checkout.module.css";
 export function CheckoutNav() {
   return (
     <nav className={styles.nav}>
-      <a className={styles.back} href="/#shop">
+      <a className={styles.back} href="/">
         <IconArrowLeft size={18} />
         Back to shop
       </a>

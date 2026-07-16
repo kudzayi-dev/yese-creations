@@ -1,5 +1,5 @@
 /* Ported verbatim from styles.css .mood rule (.moodboard grid is global,
-   ported in Stage 09/12 to tokens.css). */
+   lives in tokens.css). */
 .mood {
   border-radius: 22px;
   overflow: hidden;

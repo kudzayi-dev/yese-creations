@@ -12,10 +12,10 @@
 // That list is derived from this one, so they cannot drift.
 export const PRODUCT_CATEGORIES = [
   "Bouquets",
-  "Home",
-  "Plushies",
-  "Bags",
+  "Art",
+  "Soft Toys",
   "Accessories",
+  "Hats",
   "Prints",
 ] as const;
 export type Category = (typeof PRODUCT_CATEGORIES)[number];
@@ -89,8 +89,9 @@ export interface Palette {
 
 // ---------------------------------------------------------------------------
 // Storefront DTO — the normalised shape the storefront consumes after fetching
-// from the CMS REST API. Stage 10 (storefront data layer) maps raw Payload
-// responses into this shape; everything above this line is the CMS-side contract.
+// from the CMS REST API. The storefront data layer (apps/storefront/src/lib)
+// maps raw Payload responses into this shape; everything above this line is
+// the CMS-side contract.
 // ---------------------------------------------------------------------------
 
 /** A single photo as returned by the CMS (depth=1 expansion of the Media doc). */

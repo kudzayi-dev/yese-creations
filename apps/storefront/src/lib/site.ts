@@ -7,7 +7,7 @@
  * process.env reference in route code) keeps it out of the client bundle and
  * safe to call from a route's loader, same pattern as lib/products.ts.
  *
- * Used by product.$slug.tsx's head() (Stage 18) to build canonical/OG URLs.
+ * Used by product.$slug.tsx's head() to build canonical/OG URLs.
  */
 import { createServerFn } from "@tanstack/react-start";
 

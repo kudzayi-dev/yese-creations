@@ -7,10 +7,13 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 
 import { Customers } from "./collections/Customers";
+import { Feedback } from "./collections/Feedback";
 import { Media } from "./collections/Media";
 import { Orders } from "./collections/Orders";
 import { Products } from "./collections/Products";
+import { Subscribers } from "./collections/Subscribers";
 import { Users } from "./collections/Users";
+import { SiteSettings } from "./globals/SiteSettings";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -34,13 +37,14 @@ export default buildConfig({
       // "/"-prefixed component paths, and it gets that computation wrong
       // for this nested route's importMap.js (off by one directory level,
       // reproduced on every `payload generate:importmap` run and every dev
-      // server boot — see Stage 23's notes). Using the alias sidesteps the
-      // relative-path computation entirely; Next.js's own bundler resolves
-      // "@/..." the same way regardless of which file imports it.
+      // server boot). Using the alias sidesteps the relative-path
+      // computation entirely; Next.js's own bundler resolves "@/..." the
+      // same way regardless of which file imports it.
       afterNavLinks: ["@/components/DocsNavLink#DocsNavLink"],
     },
   },
-  collections: [Users, Media, Products, Customers, Orders],
+  collections: [Users, Media, Products, Customers, Orders, Feedback, Subscribers],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
