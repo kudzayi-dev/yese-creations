@@ -69,6 +69,8 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    categories: Category;
+    pages: Page;
     products: Product;
     customers: Customer;
     orders: Order;
@@ -83,6 +85,8 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     customers: CustomersSelect<false> | CustomersSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
@@ -99,9 +103,13 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'footer-settings': FooterSetting;
+    about: About;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'footer-settings': FooterSettingsSelect<false> | FooterSettingsSelect<true>;
+    about: AboutSelect<false> | AboutSelect<true>;
   };
   locale: null;
   widgets: {
@@ -205,6 +213,135 @@ export interface Media {
   };
 }
 /**
+ * The shop's product categories — drives the Shop filter chips, the footer's Shop column, and the /feedback + search category chips. Add, rename, or reorder here; no deploy needed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  /**
+   * Auto-generated from the name. Used in filter-chip URLs/state.
+   */
+  slug?: string | null;
+  /**
+   * Lower numbers show first in the filter-chip row and the footer's Shop column.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Composable pages built from an ordered list of sections. The homepage lives here (slug "home") — add, remove, or drag to reorder sections in "Layout" below.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * The homepage uses "home". Future landing pages would use their own slug.
+   */
+  slug: string;
+  layout?:
+    | (
+        | {
+            /**
+             * The big headline. Use *word* for the coral script-accent style and _word_ for the outlined-stroke style (matches the current "painted" / "magic" treatment). A line on its own becomes a line break.
+             */
+            heading?: string | null;
+            /**
+             * The paragraph under the headline. Leave empty to use the default copy.
+             */
+            leadCopy?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            heading: string;
+            copy: string;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
+            theme?: ('coral' | 'gold' | 'teal') | null;
+            /**
+             * Optional. Leave empty to start showing immediately.
+             */
+            activeFrom?: string | null;
+            /**
+             * Optional — the banner self-expires after this date. No need to remember to remove it.
+             */
+            activeTo?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'promoBanner';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'trustBand';
+          }
+        | {
+            /**
+             * Small label above the heading, e.g. "Shop the collection".
+             */
+            kicker?: string | null;
+            /**
+             * Leave either field empty to use the default copy.
+             */
+            heading?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'productGrid';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'story';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            /**
+             * Step numbers (01, 02, ...) are generated automatically from the order here — drag to reorder.
+             */
+            steps?:
+              | {
+                  title: string;
+                  detail: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'process';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'moodboard';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bespoke';
+          }
+        | {
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
@@ -215,7 +352,10 @@ export interface Product {
    * Auto-generated from the name. Powers the PDP URL — changing it breaks existing links.
    */
   slug?: string | null;
-  cat: 'Bouquets' | 'Art' | 'Soft Toys' | 'Accessories' | 'Hats' | 'Prints';
+  /**
+   * Add or rename categories in the Categories collection — no code change needed.
+   */
+  cat: number | Category;
   /**
    * Enter the price in pounds. e.g. 24.99 for £24.99. Stored as pence internally for Stripe.
    */
@@ -359,9 +499,9 @@ export interface Feedback {
    */
   productName: string;
   /**
-   * Which shop category this review is about — powers the /feedback category filter.
+   * Which shop category this review is about — powers the /feedback category filter. Add or rename categories in the Categories collection.
    */
-  cat: 'Bouquets' | 'Art' | 'Soft Toys' | 'Accessories' | 'Hats' | 'Prints';
+  cat: number | Category;
   /**
    * Masked eBay buyer ID, e.g. "j***n" — exactly as shown on the public feedback profile. Only used when source is eBay.
    */
@@ -435,6 +575,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'products';
@@ -571,6 +719,109 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              heading?: T;
+              leadCopy?: T;
+              id?: T;
+              blockName?: T;
+            };
+        promoBanner?:
+          | T
+          | {
+              heading?: T;
+              copy?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              theme?: T;
+              activeFrom?: T;
+              activeTo?: T;
+              id?: T;
+              blockName?: T;
+            };
+        trustBand?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        productGrid?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              id?: T;
+              blockName?: T;
+            };
+        story?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        process?:
+          | T
+          | {
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    detail?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        moodboard?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        bespoke?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -751,6 +1002,83 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-settings".
+ */
+export interface FooterSetting {
+  id: number;
+  /**
+   * Shown in the footer's "Hello" column. Add or remove accounts here — no code change needed.
+   */
+  socialLinks?:
+    | {
+        /**
+         * "Other" shows the label as plain text with no platform icon.
+         */
+        platform: 'instagram' | 'pinterest' | 'tiktok' | 'other';
+        url: string;
+        /**
+         * Displayed handle, e.g. @yese.creations
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Shown in the footer's "Studio" column (Our story, Bespoke, Care guide, etc). Replaces the old code-level page-readiness flags — just add the link here once the page is live.
+   */
+  studioLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Shown in the thin bottom row of the footer (Shipping, Returns, Privacy, etc).
+   */
+  legalLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Theresa's bio, shown on the homepage's "My Story" section, the standalone /about page, and the fast in-app overlay — all three read from here, so nothing can drift out of sync.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about".
+ */
+export interface About {
+  id: number;
+  /**
+   * Small label above the heading, e.g. "My Story".
+   */
+  kicker?: string | null;
+  /**
+   * Use *word* for the coral script-accent style (matches the current "one" treatment).
+   */
+  heading?: string | null;
+  paragraphs?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  signatureName?: string | null;
+  signatureSubtitle?: string | null;
+  /**
+   * The small handwritten-style note next to the photos. Use a line break for a two-line note.
+   */
+  marginNote?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -767,6 +1095,57 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         showEbaySourced?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-settings_select".
+ */
+export interface FooterSettingsSelect<T extends boolean = true> {
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  studioLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about_select".
+ */
+export interface AboutSelect<T extends boolean = true> {
+  kicker?: T;
+  heading?: T;
+  paragraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  signatureName?: T;
+  signatureSubtitle?: T;
+  marginNote?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

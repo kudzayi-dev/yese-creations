@@ -104,6 +104,15 @@ export interface CmsPhoto {
   };
 }
 
+// A CMS-editable category (apps/cms/src/collections/Categories.ts). Fetched
+// via fetchCategories()/getCategories() — drives the Shop filter chips, the
+// footer's Shop column, and the /feedback + search category chips.
+export interface StorefrontCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 /**
  * The normalised product shape the storefront works with.
  *
@@ -118,7 +127,14 @@ export interface StorefrontProduct {
   id: number;
   slug: string;
   name: string;
-  cat: Category;
+  /**
+   * Category NAME (not the compile-time `Category` union) — categories are
+   * now a CMS-editable collection (apps/cms/src/collections/Categories.ts),
+   * so this can't be a fixed union anymore. Comparisons/filtering still
+   * work as plain string equality against the live category list fetched
+   * via fetchCategories()/getCategories().
+   */
+  cat: string;
   /** Price in pounds (GBP). e.g. 24.99 = £24.99. Display as `£${price.toFixed(2)}`. */
   price: number;
   meta: string;

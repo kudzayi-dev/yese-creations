@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import config from "@payload-config";
 import {
   PRODUCTS,
+  PRODUCT_CATEGORIES,
   detailFor,
   productSlug,
   type Product as SeedProduct,
@@ -84,6 +85,64 @@ function mimeTypeFor(ext: string): string {
 
 async function seed() {
   const payload = await getPayload({ config });
+
+  // ------------------------------------------------------------ categories
+  // Seeded from the same PRODUCT_CATEGORIES the taxonomy used to be hardcoded
+  // to — this is a one-time migration step, not an ongoing source of truth;
+  // after this, Products.cat points at these records and the Categories
+  // collection in /admin is the real source of truth going forward.
+  const categoryIdByName = new Map<string, number>();
+  for (let i = 0; i < PRODUCT_CATEGORIES.length; i++) {
+    const name = PRODUCT_CATEGORIES[i]!;
+    const existing = await payload.find({
+      collection: "categories",
+      where: { name: { equals: name } },
+      limit: 1,
+    });
+    const found = existing.docs[0];
+    if (found) {
+      categoryIdByName.set(name, found.id);
+    } else {
+      const created = await payload.create({
+        collection: "categories",
+        data: { name, sortOrder: i },
+      });
+      categoryIdByName.set(name, created.id);
+      console.log(`  category + ${name}`);
+    }
+  }
+
+  // ------------------------------------------------------------------ pages
+  // Seeds the homepage's default layout to exactly match what was
+  // previously hardcoded JSX order + SiteSettings.homepageSections'
+  // defaults (gallery/process/moodboard/bespoke start OFF) — zero visual
+  // change on first deploy of the blocks system. Idempotent by slug, same
+  // pattern as products/categories above; only creates if missing so an
+  // editor's real layout edits in /admin are never clobbered by a reseed.
+  const existingHome = await payload.find({
+    collection: "pages",
+    where: { slug: { equals: "home" } },
+    limit: 1,
+  });
+  if (!existingHome.docs[0]) {
+    await payload.create({
+      collection: "pages",
+      data: {
+        title: "Homepage",
+        slug: "home",
+        layout: [
+          { blockType: "hero" },
+          { blockType: "trustBand" },
+          { blockType: "productGrid" },
+          { blockType: "story" },
+          { blockType: "testimonials" },
+        ],
+      },
+    });
+    console.log("  page    + home");
+  } else {
+    console.log("  page    ~ home (already exists, left untouched)");
+  }
 
   // ---------------------------------------------------------- brand media
   const mediaIds = new Map<string, number>();
@@ -182,10 +241,15 @@ async function seed() {
     photosUploaded += photos.length;
     photosSkipped += Math.max(0, expectedCount - photos.length);
 
+    const catId = categoryIdByName.get(p.cat);
+    if (catId === undefined) {
+      throw new Error(`No category id found for "${p.cat}" (product ${p.id}) — seeded categories: ${[...categoryIdByName.keys()].join(", ")}`);
+    }
+
     const data = {
       name: p.name,
       slug,
-      cat: p.cat,
+      cat: catId,
       price: p.price,
       meta: p.meta,
       // Shared type uses "" for "no tag"; Payload models that as an unset select.

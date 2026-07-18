@@ -1,13 +1,8 @@
-import { PRODUCT_CATEGORIES } from "@yese/product-data";
 import type { CollectionConfig } from "payload";
 
-// Derived from the shared runtime array (same pattern as Products.ts's
-// categoryOptions) so this select can't drift from the real product
-// taxonomy. NOTE: the reviews design mockup used a stale category set
-// (Bouquets/Home/Plushies/Bags/Accessories/Prints) — the real, current
-// taxonomy is Bouquets/Art/Soft Toys/Accessories/Hats/Prints. Use the real
-// one when assigning cat to feedback entries.
-const categoryOptions = PRODUCT_CATEGORIES.map((c) => ({ label: c, value: c }));
+// cat is now a relationship to the Categories collection (see
+// Categories.ts / Products.ts — same migration, same reasoning: the shop's
+// taxonomy is CMS-editable content, not a compile-time enum).
 
 // Customer feedback / testimonials shown on the homepage (curated highlights)
 // and the standalone /feedback page (the full list). Two intended sources of
@@ -79,12 +74,13 @@ export const Feedback: CollectionConfig = {
     {
       name: "cat",
       label: "Category",
-      type: "select",
+      type: "relationship",
+      relationTo: "categories",
+      hasMany: false,
       required: true,
-      options: categoryOptions,
       index: true,
       admin: {
-        description: "Which shop category this review is about — powers the /feedback category filter.",
+        description: "Which shop category this review is about — powers the /feedback category filter. Add or rename categories in the Categories collection.",
       },
     },
     {

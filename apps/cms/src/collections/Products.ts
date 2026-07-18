@@ -2,14 +2,13 @@ import {
   MOTIFS,
   PALETTE_MAX,
   PALETTE_MIN,
-  PRODUCT_CATEGORIES,
   productSlug,
 } from "@yese/product-data";
 import type { CollectionConfig } from "payload";
 
-// Enum options are DERIVED from the @yese/product-data runtime arrays rather than
-// hand-copied, so the CMS select fields and the shared TS unions cannot drift.
-const categoryOptions = PRODUCT_CATEGORIES.map((c) => ({ label: c, value: c }));
+// motif enum options are DERIVED from the @yese/product-data runtime array
+// rather than hand-copied, so the CMS select field and the shared TS union
+// cannot drift.
 const motifOptions = MOTIFS.map((m) => ({ label: m, value: m }));
 
 // Tag: the shared union includes "" for "no tag". Payload models that as simply
@@ -60,10 +59,14 @@ export const Products: CollectionConfig = {
     {
       name: "cat",
       label: "Category",
-      type: "select",
+      type: "relationship",
+      relationTo: "categories",
+      hasMany: false,
       required: true,
-      options: categoryOptions,
       index: true,
+      admin: {
+        description: "Add or rename categories in the Categories collection — no code change needed.",
+      },
     },
     {
       name: "price",

@@ -2,28 +2,33 @@ import { useState } from "react";
 import { IconArrow, IconCheck, IconClose, IconInstagram, IconPinterest, IconTiktok } from "../icons";
 import { scrollToSection } from "~/lib/scrollToSection";
 import { subscribeToNewsletter } from "~/lib/newsletter";
+import type { FooterContent, FooterSocialLink } from "~/lib/cms";
+import type { StorefrontCategory } from "@yese/product-data";
 import styles from "./Footer.module.css";
 
 export interface FooterProps {
   /**
-   * Homepage section feature flags (site-settings CMS global) — same prop
-   * shape/source as Nav's/Hero's sectionFlags.
-   * - "Bespoke service" links to the same offering as the Bespoke section,
-   *   so it's gated behind sectionFlags.bespoke.
-   * - "Care guide" / "Sustainability" are editorial content pages that
-   *   don't have dedicated CMS flags of their own; by decision, they're
-   *   gated behind sectionFlags.studioJournal (the closest existing
-   *   "content pages aren't ready yet" bucket) rather than adding two new
-   *   single-purpose flags.
-   * Defaults to off (fail-closed), matching Nav/Hero.
+   * CMS-driven footer links (footer-settings global) — social/studio/legal
+   * links all live in the CMS now so adding or removing one never needs a
+   * code deploy. Defaults to empty (fail-closed, same reasoning as
+   * Nav/Hero's sectionFlags) so a page rendered without this prop never
+   * shows a broken or stale link.
    */
-  sectionFlags?: {
-    bespoke: boolean;
-    studioJournal: boolean;
-  };
+  content?: FooterContent;
+  /** CMS-editable taxonomy (fetched via getCategories()) — drives the Shop column. */
+  categories?: StorefrontCategory[];
 }
 
-const DEFAULT_FLAGS = { bespoke: false, studioJournal: false };
+const DEFAULT_CONTENT: FooterContent = { socialLinks: [], studioLinks: [], legalLinks: [] };
+
+// Only Instagram/Pinterest/TikTok have a dedicated icon today — "other"
+// (and any future platform added in the CMS before an icon exists for it)
+// renders as label-only text, no icon, rather than breaking.
+const SOCIAL_ICONS: Partial<Record<FooterSocialLink["platform"], typeof IconInstagram>> = {
+  instagram: IconInstagram,
+  pinterest: IconPinterest,
+  tiktok: IconTiktok,
+};
 
 // Ported from design_handoff_yese_newsletter's Footer() — the previously
 // static signup (no loading/success/error states at all) now mirrors the
@@ -37,7 +42,8 @@ const DEFAULT_FLAGS = { bespoke: false, studioJournal: false };
 // since the real CMS integration (lib/newsletter.ts) can actually tell us.
 type SignupStatus = "idle" | "submitting" | "success" | "alreadySubscribed" | "error";
 
-export function Footer({ sectionFlags = DEFAULT_FLAGS }: FooterProps = {}) {
+export function Footer({ content = DEFAULT_CONTENT, categories = [] }: FooterProps = {}) {
+  const { socialLinks, studioLinks, legalLinks } = content;
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<SignupStatus>("idle");
 
@@ -143,20 +149,19 @@ export function Footer({ sectionFlags = DEFAULT_FLAGS }: FooterProps = {}) {
         <div>
           <h4>Shop</h4>
           <ul>
-            <li><a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>Bouquets</a></li>
-            <li><a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>Plushies</a></li>
-            <li><a href="#gallery" onClick={(e) => scrollToSection(e, "gallery")}>Original paintings</a></li>
-            <li><a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>Prints</a></li>
-            <li><a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>Home &amp; accessories</a></li>
+            {categories.map((c) => (
+              <li key={c.id}>
+                <a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>{c.name}</a>
+              </li>
+            ))}
           </ul>
         </div>
         <div>
           <h4>Studio</h4>
           <ul>
-            <li><a href="#">Our story</a></li>
-            {sectionFlags.bespoke && <li><a href="#">Bespoke service</a></li>}
-            {sectionFlags.studioJournal && <li><a href="#">Care guide</a></li>}
-            {sectionFlags.studioJournal && <li><a href="#">Sustainability</a></li>}
+            {studioLinks.map((link) => (
+              <li key={link.label}><a href={link.url}>{link.label}</a></li>
+            ))}
           </ul>
         </div>
 
@@ -164,9 +169,16 @@ export function Footer({ sectionFlags = DEFAULT_FLAGS }: FooterProps = {}) {
           <h4>Hello</h4>
           <ul>
             <li><a href="mailto:hello@yese.studio">hello@yese.studio</a></li>
-            <li><a href="#" className={styles.social}><IconInstagram size={14} /> @yese.creations</a></li>
-            <li><a href="#" className={styles.social}><IconPinterest size={14} /> yesecreations</a></li>
-            <li><a href="#" className={styles.social}><IconTiktok size={14} /> yesemakes</a></li>
+            {socialLinks.map((social) => {
+              const Icon = SOCIAL_ICONS[social.platform];
+              return (
+                <li key={social.label}>
+                  <a href={social.url} className={styles.social}>
+                    {Icon && <Icon size={14} />} {social.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -174,9 +186,9 @@ export function Footer({ sectionFlags = DEFAULT_FLAGS }: FooterProps = {}) {
       <div className={styles.bottom}>
         <div>© 2026 Yese Creations · run, made &amp; loved by Yese in London</div>
         <div className={styles.bottomLinks}>
-          <a href="#">Shipping</a>
-          <a href="#">Returns</a>
-          <a href="#">Privacy</a>
+          {legalLinks.map((link) => (
+            <a key={link.label} href={link.url}>{link.label}</a>
+          ))}
         </div>
       </div>
     </footer>

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getSiteUrl } from "~/lib/site";
+import { getAboutContent } from "~/lib/products";
 import { AboutPage } from "~/components/AboutPage";
 
 // Real, standalone, server-rendered route — same reasoning as /feedback:
@@ -8,8 +9,8 @@ import { AboutPage } from "~/components/AboutPage";
 // URL a search engine or a shared link can land on. This is that page.
 export const Route = createFileRoute("/about")({
   loader: async () => {
-    const siteUrl = await getSiteUrl();
-    return { siteUrl };
+    const [siteUrl, content] = await Promise.all([getSiteUrl(), getAboutContent()]);
+    return { siteUrl, content };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
@@ -35,5 +36,10 @@ export const Route = createFileRoute("/about")({
       links: [{ rel: "canonical", href: canonicalUrl }],
     };
   },
-  component: AboutPage,
+  component: AboutRoute,
 });
+
+function AboutRoute() {
+  const { content } = Route.useLoaderData();
+  return <AboutPage content={content} />;
+}

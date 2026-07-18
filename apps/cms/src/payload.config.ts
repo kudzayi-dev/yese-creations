@@ -7,6 +7,8 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 
 import { Customers } from "./collections/Customers";
+import { Categories } from "./collections/Categories";
+import { Pages } from "./collections/Pages";
 import { Feedback } from "./collections/Feedback";
 import { Media } from "./collections/Media";
 import { Orders } from "./collections/Orders";
@@ -14,6 +16,8 @@ import { Products } from "./collections/Products";
 import { Subscribers } from "./collections/Subscribers";
 import { Users } from "./collections/Users";
 import { SiteSettings } from "./globals/SiteSettings";
+import { FooterSettings } from "./globals/FooterSettings";
+import { About } from "./globals/About";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -43,8 +47,8 @@ export default buildConfig({
       afterNavLinks: ["@/components/DocsNavLink#DocsNavLink"],
     },
   },
-  collections: [Users, Media, Products, Customers, Orders, Feedback, Subscribers],
-  globals: [SiteSettings],
+  collections: [Users, Media, Categories, Pages, Products, Customers, Orders, Feedback, Subscribers],
+  globals: [SiteSettings, FooterSettings, About],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

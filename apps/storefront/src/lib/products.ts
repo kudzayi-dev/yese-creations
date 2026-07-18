@@ -28,6 +28,10 @@ import {
   fetchHomepageSectionFlags,
   fetchFeaturedFeedback,
   fetchAllFeedback,
+  fetchFooterContent,
+  fetchCategories,
+  fetchPageBySlug,
+  fetchAboutContent,
 } from "./cms";
 
 export const getAllProducts = createServerFn().handler(async () => {
@@ -56,4 +60,27 @@ export const getFeaturedFeedback = createServerFn().handler(async () => {
 // Full list for the standalone /feedback page.
 export const getAllFeedback = createServerFn().handler(async () => {
   return fetchAllFeedback();
+});
+
+// CMS-driven footer links (social/studio/legal) — same createServerFn
+// pattern as getHomepageSectionFlags.
+export const getFooterContent = createServerFn().handler(async () => {
+  return fetchFooterContent();
+});
+
+// CMS-editable category taxonomy — powers the Shop filter chips, footer
+// Shop column, and /feedback + search category chips.
+export const getCategories = createServerFn().handler(async () => {
+  return fetchCategories();
+});
+
+// Homepage's composable block layout (Pages collection, slug "home").
+export const getHomepageLayout = createServerFn().handler(async () => {
+  return fetchPageBySlug("home");
+});
+
+// Theresa's bio content (About global) — shared by Story.tsx, /about, and
+// AboutOverlay.
+export const getAboutContent = createServerFn().handler(async () => {
+  return fetchAboutContent();
 });

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAllFeedback } from "~/lib/products";
+import { getAllFeedback, getCategories } from "~/lib/products";
 import { getSiteUrl } from "~/lib/site";
 import { FeedbackPage } from "~/components/FeedbackPage";
 
@@ -10,8 +10,12 @@ import { FeedbackPage } from "~/components/FeedbackPage";
 // with real SEO metadata, same as /product/$slug.
 export const Route = createFileRoute("/feedback")({
   loader: async () => {
-    const [feedback, siteUrl] = await Promise.all([getAllFeedback(), getSiteUrl()]);
-    return { feedback, siteUrl };
+    const [feedback, siteUrl, categories] = await Promise.all([
+      getAllFeedback(),
+      getSiteUrl(),
+      getCategories(),
+    ]);
+    return { feedback, siteUrl, categories };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
@@ -41,6 +45,6 @@ export const Route = createFileRoute("/feedback")({
 });
 
 function FeedbackRoute() {
-  const { feedback } = Route.useLoaderData();
-  return <FeedbackPage feedback={feedback} />;
+  const { feedback, categories } = Route.useLoaderData();
+  return <FeedbackPage feedback={feedback} categories={categories} />;
 }

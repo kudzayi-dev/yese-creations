@@ -1,0 +1,47 @@
+.banner {
+  padding: 16px 5vw;
+  text-align: center;
+}
+.coral { background: var(--coral); }
+.gold { background: var(--gold); }
+.teal { background: var(--teal-deep); }
+
+.inner {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--paper);
+  letter-spacing: 0.01em;
+}
+.copy {
+  font-size: 14px;
+  color: rgba(255, 250, 241, 0.9);
+}
+.cta {
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 6px 16px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.cta:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 560px) {
+  .inner { flex-direction: column; gap: 6px; }
+}

@@ -1,20 +1,24 @@
 import { useMemo, useRef, useState } from "react";
-import { CATEGORIES } from "@yese/product-data";
-import type { Category, StorefrontProduct } from "@yese/product-data";
+import type { StorefrontProduct, StorefrontCategory } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { ProductCard } from "../ProductCard";
 import { ProductOverlay } from "../ProductOverlay";
 
 export interface ProductsProps {
   products: StorefrontProduct[];
+  /** CMS-editable taxonomy (fetched via getCategories()) — drives the filter chips. */
+  categories: StorefrontCategory[];
+  /** From the CMS's productGrid block (Pages collection). Falls back to the default copy if empty. */
+  kicker?: string;
+  heading?: string;
 }
 
 // Ported from Products in app.jsx. Category filter, the add-flash timer, and
 // the overlay's selected-product state stay local UI state (per-page,
 // ephemeral). Cart/wishlist are shared state from CartProvider (hooks/useCart)
 // so they persist and stay in sync with the Nav badge and the PDP routes.
-export function Products({ products }: ProductsProps) {
-  const [cat, setCat] = useState<"All" | Category>("All");
+export function Products({ products, categories, kicker, heading }: ProductsProps) {
+  const [cat, setCat] = useState<string>("All");
   const [lastAdded, setLastAdded] = useState<number | null>(null);
   const [selected, setSelected] = useState<StorefrontProduct | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -40,11 +44,11 @@ export function Products({ products }: ProductsProps) {
     <section className="section" id="shop">
       <div className="section-title">
         <div>
-          <span className="kicker single">Shop the collection</span>
-          <h2 className="h-display">A little of what I'm making right now.</h2>
+          <span className="kicker single">{kicker || "Shop the collection"}</span>
+          <h2 className="h-display">{heading || "A little of what I'm making right now."}</h2>
         </div>
         <div className="filters">
-          {CATEGORIES.map((c) => (
+          {["All", ...categories.map((c) => c.name)].map((c) => (
             <button
               key={c}
               className={`chip-btn${cat === c ? " active" : ""}`}

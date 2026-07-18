@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AboutContent } from "~/components/Story/AboutContent";
 import { useAboutOverlay } from "~/hooks/useAboutOverlay";
+import { getAboutContent } from "~/lib/products";
+import type { AboutContentData } from "~/lib/cms";
 import { IconArrowLeft, IconClose } from "../icons";
 // Reuses ProductOverlay's chrome classes (overlay/open/topbar/back/brand/
 // close/scroll/inner) — same full-screen-takeover pattern, not
@@ -18,6 +20,16 @@ import styles from "./AboutOverlay.module.css";
 // and the standalone /about route, so nothing can drift between the three.
 export function AboutOverlay() {
   const { isOpen, closeAbout } = useAboutOverlay();
+  const [content, setContent] = useState<AboutContentData | null>(null);
+
+  // Fetch once, the first time the overlay is opened — same lazy-fetch
+  // pattern as SearchOverlay's product/category lists, since nothing else
+  // on the page needs this content.
+  useEffect(() => {
+    if (isOpen && content === null) {
+      getAboutContent().then(setContent);
+    }
+  }, [isOpen, content]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -56,9 +68,7 @@ export function AboutOverlay() {
       </div>
 
       <div className={overlayStyles.scroll}>
-        <div className={styles.inner}>
-          <AboutContent />
-        </div>
+        <div className={styles.inner}>{content && <AboutContent content={content} />}</div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { YarnBall, YarnHeart } from "@yese/ui";
 import { IconArrow } from "../icons";
 import { scrollToSection } from "~/lib/scrollToSection";
+import { renderStyledHeading } from "~/lib/styledHeading";
 import styles from "./Hero.module.css";
 
 export interface HeroProps {
@@ -18,9 +19,14 @@ export interface HeroProps {
   sectionFlags?: {
     bespoke: boolean;
   };
+  /** From the CMS's hero block (Pages collection). Falls back to the default copy below if empty. */
+  leadCopy?: string;
+  /** From the CMS's hero block. Supports *word* / _word_ markup — see renderStyledHeading. Falls back to the default headline if empty. */
+  heading?: string;
 }
 
 const DEFAULT_FLAGS = { bespoke: false };
+const DEFAULT_HEADING = "Crochet & *painted*\nkeepsakes, made by\nme, with a little _magic_.";
 
 function FloatingMotifs() {
   return (
@@ -41,7 +47,7 @@ function FloatingMotifs() {
   );
 }
 
-export function Hero({ sectionFlags = DEFAULT_FLAGS }: HeroProps = {}) {
+export function Hero({ sectionFlags = DEFAULT_FLAGS, leadCopy, heading }: HeroProps = {}) {
   return (
     <section className={`${styles.hero} paper-bg`}>
       <FloatingMotifs />
@@ -54,16 +60,16 @@ export function Hero({ sectionFlags = DEFAULT_FLAGS }: HeroProps = {}) {
           hi, I'm Yese — a one-woman studio
         </span>
         <h1 className={styles.h1}>
-          Crochet &amp; <span className={styles.script}>painted</span>
-          <br />
-          keepsakes, made by
-          <br />
-          me, with a little <span className={styles.stroke}>magic</span>.
+          {renderStyledHeading(heading || DEFAULT_HEADING, { script: styles.script, stroke: styles.stroke })}
         </h1>
         <p className={styles.lead}>
-          I'm an independent artist working from a tiny studio — crocheting bouquets and
-          plushies, painting in oils, and stitching bespoke keepsakes for people who'd rather
-          have <em>one made-by-hand thing</em> than ten mass-produced ones.
+          {leadCopy || (
+            <>
+              I'm an independent artist working from a tiny studio — crocheting bouquets and
+              plushies, painting in oils, and stitching bespoke keepsakes for people who'd rather
+              have <em>one made-by-hand thing</em> than ten mass-produced ones.
+            </>
+          )}
         </p>
         <div className={styles.heroCtas}>
           <a href="#shop" className="btn btn-primary" onClick={(e) => scrollToSection(e, "shop")}>

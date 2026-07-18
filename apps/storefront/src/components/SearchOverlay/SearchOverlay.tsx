@@ -3,7 +3,8 @@ import { useLocation } from "@tanstack/react-router";
 import { PHGradient } from "@yese/ui";
 import { PALETTES, detailForStorefront } from "@yese/product-data";
 import type { StorefrontProduct } from "@yese/product-data";
-import { getAllProducts } from "~/lib/products";
+import { getAllProducts, getCategories } from "~/lib/products";
+import type { StorefrontCategory } from "@yese/product-data";
 import { formatGBP } from "~/lib/format";
 import { useSearchOverlay } from "~/hooks/useSearchOverlay";
 import { scrollToSection } from "~/lib/scrollToSection";
@@ -15,13 +16,6 @@ import { IconClose, IconSearch } from "../icons";
 // part lives in SearchOverlay.module.css.
 import overlayStyles from "~/components/ProductOverlay/ProductOverlay.module.css";
 import styles from "./SearchOverlay.module.css";
-
-// Popular-category quick-link chips shown before the person types anything.
-// Four of the six real categories (@yese/product-data's PRODUCT_CATEGORIES),
-// not the design handoff's own stale list (Bouquets/Home/Plushies/Bags/
-// Accessories/Prints) — same drift correction made for the Feedback page's
-// category set, applied here before this ever shipped with wrong copy.
-const POPULAR_CATEGORIES = ["Bouquets", "Soft Toys", "Accessories", "Prints"] as const;
 
 const DEBOUNCE_MS = 220;
 
@@ -40,18 +34,23 @@ export function SearchOverlay() {
   const { isOpen, closeSearch } = useSearchOverlay();
   const isHome = useLocation({ select: (l) => l.pathname === "/" });
   const [allProducts, setAllProducts] = useState<StorefrontProduct[] | null>(null);
+  const [categories, setCategories] = useState<StorefrontCategory[] | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [debouncing, setDebouncing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch the product list once, the first time the overlay is opened —
-  // not on every route load — since nothing else on the page needs it.
+  // Fetch the product list and category list once, the first time the
+  // overlay is opened — not on every route load — since nothing else on the
+  // page needs them.
   useEffect(() => {
     if (isOpen && allProducts === null) {
       getAllProducts().then(setAllProducts);
     }
-  }, [isOpen, allProducts]);
+    if (isOpen && categories === null) {
+      getCategories().then(setCategories);
+    }
+  }, [isOpen, allProducts, categories]);
 
   // Debounce-as-you-type. The skeleton state below fills the debounce
   // window so typing never flashes a blank pause (per the handoff's
@@ -135,9 +134,9 @@ export function SearchOverlay() {
             <>
               <span className={styles.label}>Popular categories</span>
               <div className={styles.chips}>
-                {POPULAR_CATEGORIES.map((c) => (
-                  <button key={c} className="chip-btn" onClick={() => setQuery(c)}>
-                    {c}
+                {(categories ?? []).slice(0, 4).map((c) => (
+                  <button key={c.id} className="chip-btn" onClick={() => setQuery(c.name)}>
+                    {c.name}
                   </button>
                 ))}
               </div>

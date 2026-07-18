@@ -188,16 +188,33 @@ const FEEDBACK_SEED = [
 async function seedFeedback() {
   const payload = await getPayload({ config });
 
+  // Look up category ids by name — cat is now a relationship, same
+  // migration as Products.cat in seed.ts. Categories are expected to
+  // already exist (seeded by `pnpm seed`); throw loudly if one is missing
+  // rather than silently creating a duplicate/mistyped category.
+  const categoryIdByName = new Map<string, number>();
+  const allCategories = await payload.find({ collection: "categories", limit: 0 });
+  for (const c of allCategories.docs) {
+    categoryIdByName.set(c.name, c.id);
+  }
+
   let created = 0;
   let updated = 0;
 
   for (const entry of FEEDBACK_SEED) {
+    const catId = categoryIdByName.get(entry.cat);
+    if (catId === undefined) {
+      throw new Error(
+        `No category id found for "${entry.cat}" — has \`pnpm seed\` been run first? Known categories: ${[...categoryIdByName.keys()].join(", ")}`,
+      );
+    }
+
     const data = {
       source: "ebay" as const,
       quote: entry.quote,
       rating: 5,
       productName: entry.productName,
-      cat: entry.cat,
+      cat: catId,
       buyerHandle: entry.buyerHandle,
       verified: true,
       featured: entry.featured,

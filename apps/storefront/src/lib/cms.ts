@@ -9,7 +9,7 @@
  *   GET /api/products?where[slug][equals]=<s>&depth=1&limit=1  → by slug
  */
 
-import type { StorefrontProduct, Tag, CmsPhoto, Category } from "@yese/product-data";
+import type { StorefrontProduct, Tag, CmsPhoto, StorefrontCategory } from "@yese/product-data";
 
 const CMS_URL = process.env["CMS_URL"] ?? "http://localhost:3001";
 
@@ -30,7 +30,9 @@ interface RawProduct {
   id: number;
   slug: string;
   name: string;
-  cat: StorefrontProduct["cat"];
+  // depth=1 expands the relationship to the full Category doc; a bare
+  // number would only show up at depth=0, which this app never requests.
+  cat: { id: number; name: string; slug: string } | number;
   price: number;
   meta: string;
   tag: Tag | null;
@@ -54,12 +56,16 @@ interface PayloadListResponse {
 // Normalisation: RawProduct → StorefrontProduct
 // ---------------------------------------------------------------------------
 
+function categoryName(cat: { id: number; name: string; slug: string } | number): string {
+  return typeof cat === "object" ? cat.name : String(cat);
+}
+
 function normalise(raw: RawProduct): StorefrontProduct {
   return {
     id: raw.id,
     slug: raw.slug,
     name: raw.name,
-    cat: raw.cat,
+    cat: categoryName(raw.cat),
     price: raw.price, // already pounds — afterRead hook divided pence÷100
     meta: raw.meta,
     tag: raw.tag ?? "",
@@ -101,6 +107,197 @@ export async function fetchProductBySlug(slug: string): Promise<StorefrontProduc
   );
   const raw = data.docs[0];
   return raw ? normalise(raw) : null;
+}
+
+// ---------------------------------------------------------------------------
+// Categories — CMS-editable taxonomy (apps/cms/src/collections/Categories.ts).
+// Powers the Shop filter chips, the footer's Shop column, and the
+// /feedback + search category chips. Replaces the old hardcoded
+// PRODUCT_CATEGORIES/CATEGORIES export from @yese/product-data for anything
+// user-facing — that export still exists for the dev seed-data package, but
+// the live storefront should always read from here.
+// ---------------------------------------------------------------------------
+
+interface RawCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+interface PayloadCategoryListResponse {
+  docs: RawCategory[];
+}
+
+// Fails to an empty list (not a throw) if the CMS is briefly unreachable —
+// an empty filter-chip row is a much smaller failure than taking the
+// homepage/feedback/search down with it.
+export async function fetchCategories(): Promise<StorefrontCategory[]> {
+  const url = `${CMS_URL}/api/categories?sort=sortOrder&limit=0`;
+  try {
+    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error(`Categories fetch failed: ${res.status} ${res.statusText} — ${url}`);
+      return [];
+    }
+    const data = (await res.json()) as PayloadCategoryListResponse;
+    return data.docs;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pages / homepage layout — CMS-composable blocks (apps/cms/src/collections/
+// Pages.ts + blocks/homepage.ts). Adding, removing, or reordering a
+// homepage section is now a CMS edit; the storefront just renders whatever
+// `layout` comes back, in order.
+// ---------------------------------------------------------------------------
+
+export interface HeroBlockData {
+  blockType: "hero";
+  id?: string;
+  heading?: string | null;
+  leadCopy?: string | null;
+}
+
+export interface PromoBannerBlockData {
+  blockType: "promoBanner";
+  id?: string;
+  heading: string;
+  copy: string;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  theme?: "coral" | "gold" | "teal" | null;
+  activeFrom?: string | null;
+  activeTo?: string | null;
+}
+
+export interface ProductGridBlockData {
+  blockType: "productGrid";
+  id?: string;
+  kicker?: string | null;
+  heading?: string | null;
+}
+
+export interface ProcessStepData {
+  title: string;
+  detail: string;
+}
+
+export interface ProcessBlockData {
+  blockType: "process";
+  id?: string;
+  steps?: ProcessStepData[] | null;
+}
+
+export interface PresenceBlockData {
+  blockType: "trustBand" | "story" | "gallery" | "moodboard" | "bespoke" | "testimonials";
+  id?: string;
+}
+
+export type HomepageBlock =
+  | HeroBlockData
+  | PromoBannerBlockData
+  | ProductGridBlockData
+  | ProcessBlockData
+  | PresenceBlockData;
+
+interface RawPage {
+  id: number;
+  title: string;
+  slug: string;
+  layout: HomepageBlock[];
+}
+
+interface PayloadPageListResponse {
+  docs: RawPage[];
+}
+
+// Fails to an empty layout (not a throw) if the CMS is briefly unreachable —
+// an empty homepage is a visible, obvious failure an editor/dev would
+// notice immediately, which is preferable to a 500.
+export async function fetchPageBySlug(slug: string): Promise<HomepageBlock[]> {
+  const url = `${CMS_URL}/api/pages?where[slug][equals]=${encodeURIComponent(slug)}&limit=1`;
+  try {
+    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error(`Page fetch failed: ${res.status} ${res.statusText} — ${url}`);
+      return [];
+    }
+    const data = (await res.json()) as PayloadPageListResponse;
+    return data.docs[0]?.layout ?? [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// About / My Story — CMS-driven bio content (apps/cms/src/globals/About.ts).
+// Shared by three consumers (Story.tsx on the homepage, /about, and
+// AboutOverlay) so nothing can drift out of sync.
+// ---------------------------------------------------------------------------
+
+export interface AboutContentData {
+  kicker: string;
+  heading: string;
+  paragraphs: string[];
+  signatureName: string;
+  signatureSubtitle: string;
+  marginNote: string;
+}
+
+interface RawAbout {
+  kicker?: string | null;
+  heading?: string | null;
+  paragraphs?: Array<{ text: string }> | null;
+  signatureName?: string | null;
+  signatureSubtitle?: string | null;
+  marginNote?: string | null;
+}
+
+// Mirrors the CMS field defaultValues — used both as the fallback if the
+// CMS is briefly unreachable AND as the shape AboutContent.tsx was already
+// hardcoded to, so a fetch failure here degrades to exactly what shipped
+// before this was CMS-driven, not a broken/empty section.
+const DEFAULT_ABOUT_CONTENT: AboutContentData = {
+  kicker: "My Story",
+  heading: "One woman, *one* very colourful studio.",
+  paragraphs: [
+    "I'm Theresa — a freehand crochet artist and maker behind Yese Creations. There's no pattern, no machine, just yarn, paint, and a lot of patience: every piece starts as an idea and gets worked out stitch by stitch until it feels right.",
+    "What began with cozy hats and decorative garlands has grown into a full little studio of handmade treasures — amigurumi dolls, plushies, painted prints, and home pieces, alongside the crochet you'll still find at the heart of it. Nothing here is mass-produced. Each item is made one at a time, which means small variations, real texture, and the kind of detail you only get from something made by hand rather than a machine.",
+    "Whether you're after a gift that feels personal or something to make your own space a little warmer, I hope you find a piece that feels like it was made for you — because in a way, it was. Every order is wrapped, signed & posted by me.",
+  ],
+  signatureName: "Yese",
+  signatureSubtitle: "— maker, painter & resident tea-drinker",
+  marginNote: 'this is the only "team page"\nyou\'ll find on the site!',
+};
+
+export async function fetchAboutContent(): Promise<AboutContentData> {
+  const url = `${CMS_URL}/api/globals/about`;
+  try {
+    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error(`About content fetch failed: ${res.status} ${res.statusText} — ${url}`);
+      return DEFAULT_ABOUT_CONTENT;
+    }
+    const raw = (await res.json()) as RawAbout;
+    return {
+      kicker: raw.kicker || DEFAULT_ABOUT_CONTENT.kicker,
+      heading: raw.heading || DEFAULT_ABOUT_CONTENT.heading,
+      paragraphs:
+        raw.paragraphs && raw.paragraphs.length > 0
+          ? raw.paragraphs.map((p) => p.text)
+          : DEFAULT_ABOUT_CONTENT.paragraphs,
+      signatureName: raw.signatureName || DEFAULT_ABOUT_CONTENT.signatureName,
+      signatureSubtitle: raw.signatureSubtitle || DEFAULT_ABOUT_CONTENT.signatureSubtitle,
+      marginNote: raw.marginNote || DEFAULT_ABOUT_CONTENT.marginNote,
+    };
+  } catch (err) {
+    console.error(err);
+    return DEFAULT_ABOUT_CONTENT;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +377,57 @@ export async function fetchFeedbackSettings(): Promise<FeedbackSettings> {
 }
 
 // ---------------------------------------------------------------------------
+// Footer content (social/studio/legal links) — CMS-driven so adding or
+// removing a link never needs a code deploy. Same shape/access pattern as
+// site-settings.
+// ---------------------------------------------------------------------------
+
+export interface FooterSocialLink {
+  platform: "instagram" | "pinterest" | "tiktok" | "other";
+  url: string;
+  label: string;
+}
+
+export interface FooterLink {
+  label: string;
+  url: string;
+}
+
+export interface FooterContent {
+  socialLinks: FooterSocialLink[];
+  studioLinks: FooterLink[];
+  legalLinks: FooterLink[];
+}
+
+// Empty arrays if the CMS is unreachable — an empty footer column is a much
+// smaller failure than throwing and taking the whole homepage down with it.
+const DEFAULT_FOOTER_CONTENT: FooterContent = {
+  socialLinks: [],
+  studioLinks: [],
+  legalLinks: [],
+};
+
+export async function fetchFooterContent(): Promise<FooterContent> {
+  const url = `${CMS_URL}/api/globals/footer-settings`;
+  try {
+    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error(`Footer content fetch failed: ${res.status} ${res.statusText} — ${url}`);
+      return DEFAULT_FOOTER_CONTENT;
+    }
+    const raw = (await res.json()) as Partial<FooterContent>;
+    return {
+      socialLinks: raw.socialLinks ?? DEFAULT_FOOTER_CONTENT.socialLinks,
+      studioLinks: raw.studioLinks ?? DEFAULT_FOOTER_CONTENT.studioLinks,
+      legalLinks: raw.legalLinks ?? DEFAULT_FOOTER_CONTENT.legalLinks,
+    };
+  } catch (err) {
+    console.error(err);
+    return DEFAULT_FOOTER_CONTENT;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Feedback (customer testimonials — sourced eBay feedback + future in-app
 // named reviews)
 // ---------------------------------------------------------------------------
@@ -190,7 +438,7 @@ export interface FeedbackEntry {
   quote: string;
   rating: number;
   productName: string;
-  cat: Category;
+  cat: string;
   buyerHandle?: string;
   customerName?: string;
   verified: boolean;
@@ -203,7 +451,9 @@ interface RawFeedback {
   quote: string;
   rating: number;
   productName: string;
-  cat: Category;
+  // depth=1 expands the relationship to the full Category doc — same shape
+  // as RawProduct.cat.
+  cat: { id: number; name: string; slug: string } | number;
   buyerHandle: string | null;
   customerName: string | null;
   verified: boolean;
@@ -222,7 +472,7 @@ function normaliseFeedback(raw: RawFeedback): FeedbackEntry {
     quote: raw.quote,
     rating: raw.rating,
     productName: raw.productName,
-    cat: raw.cat,
+    cat: categoryName(raw.cat),
     buyerHandle: raw.buyerHandle ?? undefined,
     customerName: raw.customerName ?? undefined,
     verified: raw.verified,
@@ -254,7 +504,7 @@ function sourceFilter(settings: FeedbackSettings): string {
 export async function fetchFeaturedFeedback(): Promise<FeedbackEntry[]> {
   try {
     const settings = await fetchFeedbackSettings();
-    const data = await fetchFeedback(`where[featured][equals]=true&limit=0${sourceFilter(settings)}`);
+    const data = await fetchFeedback(`where[featured][equals]=true&limit=0&depth=1${sourceFilter(settings)}`);
     return data.docs.map(normaliseFeedback);
   } catch (err) {
     console.error(err);
@@ -267,6 +517,6 @@ export async function fetchFeaturedFeedback(): Promise<FeedbackEntry[]> {
 // thousands) doesn't need it yet.
 export async function fetchAllFeedback(): Promise<FeedbackEntry[]> {
   const settings = await fetchFeedbackSettings();
-  const data = await fetchFeedback(`limit=0${sourceFilter(settings)}`);
+  const data = await fetchFeedback(`limit=0&depth=1${sourceFilter(settings)}`);
   return data.docs.map(normaliseFeedback);
 }

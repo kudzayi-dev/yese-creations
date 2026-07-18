@@ -1,16 +1,21 @@
 import { useCart } from "~/hooks/useCart";
 import { useReveal } from "~/hooks/useReveal";
 import { AboutContent } from "~/components/Story/AboutContent";
+import type { AboutContentData } from "~/lib/cms";
 import { IconArrowLeft, IconBag } from "~/components/icons";
 // Reuses the PDP's page-chrome classes (nav/back/brand/cart/crumb/foot) —
 // same standalone-page layout as /feedback, not product-specific.
 import pdpStyles from "~/components/Pdp/Pdp.module.css";
 import styles from "./AboutPage.module.css";
 
+export interface AboutPageProps {
+  content: AboutContentData;
+}
+
 // The standalone, real-route twin of the homepage's inline Story section and
 // the AboutOverlay — same AboutContent, three views. This is the one that's
 // real, crawlable HTML: shareable link, search-indexable, works with JS off.
-export function AboutPage() {
+export function AboutPage({ content }: AboutPageProps) {
   useReveal();
   const { cartCount, openDrawer } = useCart();
 
@@ -39,7 +44,7 @@ export function AboutPage() {
       </nav>
 
       <main className={styles.main}>
-        <AboutContent />
+        <AboutContent content={content} />
       </main>
 
       <footer className={pdpStyles.foot}>

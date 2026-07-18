@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { CATEGORIES } from "@yese/product-data";
-import type { Category } from "@yese/product-data";
+import type { StorefrontCategory } from "@yese/product-data";
 import type { FeedbackEntry } from "~/lib/cms";
 import { useCart } from "~/hooks/useCart";
 import { useReveal } from "~/hooks/useReveal";
@@ -14,6 +13,8 @@ import styles from "./FeedbackPage.module.css";
 
 export interface FeedbackPageProps {
   feedback: FeedbackEntry[];
+  /** CMS-editable taxonomy (fetched via getCategories()) — drives the category chips. */
+  categories: StorefrontCategory[];
 }
 
 const STAR_FILTERS = [0, 5, 4, 3] as const;
@@ -30,10 +31,10 @@ type SortOrder = "recent" | "highest" | "lowest";
 // unfiltered list, so the initial SSR HTML still contains every review —
 // filtering is a client-side refinement on top of that, same pattern as
 // Products.tsx's category chips.
-export function FeedbackPage({ feedback }: FeedbackPageProps) {
+export function FeedbackPage({ feedback, categories }: FeedbackPageProps) {
   useReveal();
   const { cartCount, openDrawer } = useCart();
-  const [cat, setCat] = useState<"All" | Category>("All");
+  const [cat, setCat] = useState<string>("All");
   const [minStars, setMinStars] = useState<0 | 3 | 4 | 5>(0);
   const [sort, setSort] = useState<SortOrder>("recent");
 
@@ -106,7 +107,7 @@ export function FeedbackPage({ feedback }: FeedbackPageProps) {
 
         <div className={styles.filterbar}>
           <div className={styles.chips}>
-            {CATEGORIES.map((c) => (
+            {["All", ...categories.map((c) => c.name)].map((c) => (
               <button
                 key={c}
                 className={`chip-btn${cat === c ? " active" : ""}`}

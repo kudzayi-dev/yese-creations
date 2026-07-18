@@ -1,9 +1,14 @@
+import type { AboutContentData } from "~/lib/cms";
 import { AboutContent } from "./AboutContent";
 
-export function Story() {
+export interface StoryProps {
+  content: AboutContentData;
+}
+
+export function Story({ content }: StoryProps) {
   return (
     <section className={`section paper-bg`} id="story">
-      <AboutContent />
+      <AboutContent content={content} />
     </section>
   );
 }

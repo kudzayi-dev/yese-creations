@@ -1,29 +1,36 @@
+import type { ProcessStepData } from "~/lib/cms";
 import styles from "./Process.module.css";
 
-const STEPS = [
+export interface ProcessProps {
+  /** From the CMS's process block (Pages collection). Falls back to the default 4 steps if empty. */
+  steps?: ProcessStepData[];
+}
+
+const DEFAULT_STEPS: ProcessStepData[] = [
   {
-    n: "01",
-    t: "You tell me your idea",
-    d: "Pick something from the shop, or send me a few words about your dream piece — colours, occasion, the story behind it.",
+    title: "You tell me your idea",
+    detail:
+      "Pick something from the shop, or send me a few words about your dream piece — colours, occasion, the story behind it.",
   },
   {
-    n: "02",
-    t: "I pick the yarn (or paint)",
-    d: "I hand-mix shades from my 80-strong cotton library, or stretch a fresh canvas. I'll send you a quick moodboard first.",
+    title: "I pick the yarn (or paint)",
+    detail:
+      "I hand-mix shades from my 80-strong cotton library, or stretch a fresh canvas. I'll send you a quick moodboard first.",
   },
   {
-    n: "03",
-    t: "Slowly, by my hands",
-    d: "6 to 30 hours of careful loops, or a few weeks at the easel. I'll send WIP photos along the way so you stay close to it.",
+    title: "Slowly, by my hands",
+    detail:
+      "6 to 30 hours of careful loops, or a few weeks at the easel. I'll send WIP photos along the way so you stay close to it.",
   },
   {
-    n: "04",
-    t: "Wrapped & sent by me",
-    d: "Pressed, scented, ribbon-tied, and dropped at my local post office. Signed on the back, with a little handwritten note inside.",
+    title: "Wrapped & sent by me",
+    detail:
+      "Pressed, scented, ribbon-tied, and dropped at my local post office. Signed on the back, with a little handwritten note inside.",
   },
 ];
 
-export function Process() {
+export function Process({ steps }: ProcessProps) {
+  const list = steps && steps.length > 0 ? steps : DEFAULT_STEPS;
   return (
     <section className="section" id="process">
       <div className={`${styles.process} reveal`}>
@@ -32,11 +39,11 @@ export function Process() {
           From your idea to your doorstep, by my hands alone.
         </h2>
         <div className={styles.steps}>
-          {STEPS.map((s) => (
-            <div className={styles.step} key={s.n}>
-              <div className={styles.num}>{s.n}</div>
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
+          {list.map((s, i) => (
+            <div className={styles.step} key={i}>
+              <div className={styles.num}>{String(i + 1).padStart(2, "0")}</div>
+              <h3>{s.title}</h3>
+              <p>{s.detail}</p>
             </div>
           ))}
         </div>
