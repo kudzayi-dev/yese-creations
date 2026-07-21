@@ -86,9 +86,9 @@ export const FooterSettings: GlobalConfig = {
         description: "Shown in the thin bottom row of the footer (Shipping, Returns, Privacy, etc).",
       },
       defaultValue: [
+        { label: "Privacy", url: "/privacy" },
+        { label: "Terms", url: "/terms" },
         { label: "Shipping", url: "#" },
-        { label: "Returns", url: "#" },
-        { label: "Privacy", url: "#" },
       ],
       fields: [
         { name: "label", type: "text", required: true },

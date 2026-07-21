@@ -301,6 +301,69 @@ export async function fetchAboutContent(): Promise<AboutContentData> {
 }
 
 // ---------------------------------------------------------------------------
+// Legal pages (Privacy Policy / Terms & Conditions) — CMS-driven
+// (apps/cms/src/globals/LegalPages.ts). DRAFT content grounded in what
+// this app actually does, not legal advice — see that file's header
+// comment. Modelled as sections (heading + body), same plain-text
+// convention as the About global.
+// ---------------------------------------------------------------------------
+
+export interface LegalSection {
+  heading: string;
+  body: string;
+}
+
+export interface LegalPageData {
+  lastUpdated: string | null;
+  sections: LegalSection[];
+}
+
+export interface LegalPagesData {
+  privacy: LegalPageData;
+  terms: LegalPageData;
+}
+
+interface RawLegalPage {
+  lastUpdated?: string | null;
+  sections?: LegalSection[] | null;
+}
+
+interface RawLegalPages {
+  privacy?: RawLegalPage | null;
+  terms?: RawLegalPage | null;
+}
+
+const EMPTY_LEGAL_PAGE: LegalPageData = { lastUpdated: null, sections: [] };
+
+// Fails to empty sections (not a throw) if the CMS is briefly unreachable
+// — an empty legal page is still a real failure worth noticing, but
+// shouldn't take the whole route down with it.
+export async function fetchLegalPages(): Promise<LegalPagesData> {
+  const url = `${CMS_URL}/api/globals/legal-pages`;
+  try {
+    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error(`Legal pages fetch failed: ${res.status} ${res.statusText} — ${url}`);
+      return { privacy: EMPTY_LEGAL_PAGE, terms: EMPTY_LEGAL_PAGE };
+    }
+    const raw = (await res.json()) as RawLegalPages;
+    return {
+      privacy: {
+        lastUpdated: raw.privacy?.lastUpdated ?? null,
+        sections: raw.privacy?.sections ?? [],
+      },
+      terms: {
+        lastUpdated: raw.terms?.lastUpdated ?? null,
+        sections: raw.terms?.sections ?? [],
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return { privacy: EMPTY_LEGAL_PAGE, terms: EMPTY_LEGAL_PAGE };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Site settings (feature flags for homepage sections that aren't ready yet)
 // ---------------------------------------------------------------------------
 

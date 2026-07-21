@@ -105,11 +105,13 @@ export interface Config {
     'site-settings': SiteSetting;
     'footer-settings': FooterSetting;
     about: About;
+    'legal-pages': LegalPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'footer-settings': FooterSettingsSelect<false> | FooterSettingsSelect<true>;
     about: AboutSelect<false> | AboutSelect<true>;
+    'legal-pages': LegalPagesSelect<false> | LegalPagesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1078,6 +1080,43 @@ export interface About {
   createdAt?: string | null;
 }
 /**
+ * DRAFT content, not legal advice — written to accurately describe what this site actually does, but not reviewed by a solicitor. Please read through both pages and fill in every [CONFIRM: ...] placeholder (your contact details, data-retention period, business details) before relying on this for a live site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-pages".
+ */
+export interface LegalPage {
+  id: number;
+  privacy?: {
+    /**
+     * Update this whenever you change the wording below.
+     */
+    lastUpdated?: string | null;
+    sections?:
+      | {
+          heading: string;
+          body: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  terms?: {
+    /**
+     * Update this whenever you change the wording below.
+     */
+    lastUpdated?: string | null;
+    sections?:
+      | {
+          heading: string;
+          body: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1146,6 +1185,39 @@ export interface AboutSelect<T extends boolean = true> {
   signatureName?: T;
   signatureSubtitle?: T;
   marginNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-pages_select".
+ */
+export interface LegalPagesSelect<T extends boolean = true> {
+  privacy?:
+    | T
+    | {
+        lastUpdated?: T;
+        sections?:
+          | T
+          | {
+              heading?: T;
+              body?: T;
+              id?: T;
+            };
+      };
+  terms?:
+    | T
+    | {
+        lastUpdated?: T;
+        sections?:
+          | T
+          | {
+              heading?: T;
+              body?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

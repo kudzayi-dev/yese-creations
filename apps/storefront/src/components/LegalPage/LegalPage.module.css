@@ -1,0 +1,42 @@
+.main {
+  flex: 1;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px clamp(16px, 3.5vw, 48px) 80px;
+}
+
+.heading {
+  margin-bottom: 8px;
+  font-size: clamp(30px, 4vw, 42px);
+}
+
+.updated {
+  color: var(--teal);
+  opacity: 0.65;
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--teal-deep);
+  margin-bottom: 10px;
+}
+
+.section p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--teal);
+  margin-bottom: 10px;
+}
+
+.section p:last-child {
+  margin-bottom: 0;
+}

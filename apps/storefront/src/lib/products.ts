@@ -32,6 +32,7 @@ import {
   fetchCategories,
   fetchPageBySlug,
   fetchAboutContent,
+  fetchLegalPages,
 } from "./cms";
 
 export const getAllProducts = createServerFn().handler(async () => {
@@ -83,4 +84,9 @@ export const getHomepageLayout = createServerFn().handler(async () => {
 // AboutOverlay.
 export const getAboutContent = createServerFn().handler(async () => {
   return fetchAboutContent();
+});
+
+// Privacy Policy + Terms & Conditions (Legal Pages global).
+export const getLegalPages = createServerFn().handler(async () => {
+  return fetchLegalPages();
 });

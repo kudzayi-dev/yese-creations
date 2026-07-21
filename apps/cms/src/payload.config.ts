@@ -18,6 +18,7 @@ import { Users } from "./collections/Users";
 import { SiteSettings } from "./globals/SiteSettings";
 import { FooterSettings } from "./globals/FooterSettings";
 import { About } from "./globals/About";
+import { LegalPages } from "./globals/LegalPages";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -48,7 +49,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, Pages, Products, Customers, Orders, Feedback, Subscribers],
-  globals: [SiteSettings, FooterSettings, About],
+  globals: [SiteSettings, FooterSettings, About, LegalPages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
