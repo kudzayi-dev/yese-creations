@@ -24,6 +24,9 @@ services:
       POSTGRES_DB: yese
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Runs once against a fresh volume to create the second "umami"
+      # database alongside the main one — see that file's header comment.
+      - ./deploy/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -81,7 +84,34 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      VITE_ANALYTICS_URL: ${VITE_ANALYTICS_URL}
+      VITE_UMAMI_WEBSITE_ID: ${VITE_UMAMI_WEBSITE_ID}
       NODE_ENV: production
+    networks: [internal]
+
+  # ---- Telemetry: product analytics (Umami) ----
+  # Self-hosted, MIT-licensed, cookieless-by-default product analytics —
+  # picked over something like self-hosted PostHog specifically because
+  # PostHog's self-hosted stack needs ClickHouse + Kafka-equivalent + Redis
+  # on top of Postgres, which is a mismatch for a single small VPS running
+  # a one-woman shop. Umami is one container + one Postgres database (the
+  # "umami" db created by deploy/postgres-init/ above).
+  #
+  # Cookieless matters here specifically: apps/cms/src/globals/LegalPages.ts's
+  # Privacy Policy explicitly describes this as "privacy-friendly,
+  # cookieless analytics" — keep that description accurate if this ever
+  # gets swapped for a different tool.
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/umami
+      DATABASE_TYPE: postgresql
+      # Generate with: openssl rand -base64 32
+      APP_SECRET: ${UMAMI_APP_SECRET}
     networks: [internal]
 
   caddy:
@@ -97,17 +127,13 @@ services:
     depends_on:
       - cms
       - storefront
+      - umami
     networks: [internal]
 
-  # ---- Telemetry (not yet configured) ----
-  # You mentioned a "local telemetry server" alongside Postgres, but I
-  # don't know what that refers to yet (self-hosted error tracking like
-  # GlitchTip/Sentry? uptime monitoring like Uptime Kuma? log aggregation?
-  # something already running elsewhere on your infra?) — whichever it is
-  # changes what service definition belongs here and what the CMS/
-  # storefront need wired to it (a DSN env var, a log driver, etc). Once
-  # you confirm, this section gets a real service block instead of this
-  # comment.
+  # ---- Telemetry (uptime/error monitoring, log aggregation) ----
+  # Umami (above) covers PRODUCT analytics (user behavior). This section
+  # is for the other kind — error tracking, uptime checks, log
+  # aggregation — still not configured. Revisit separately.
 
 networks:
   internal:

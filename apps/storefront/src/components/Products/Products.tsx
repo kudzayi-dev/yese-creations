@@ -1,6 +1,12 @@
 import { useMemo, useRef, useState } from "react";
 import type { StorefrontProduct, StorefrontCategory } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
+import {
+  trackCategoryFilter,
+  trackProductCardClick,
+  trackProductCardAddToCart,
+  trackWishlistToggle,
+} from "~/lib/analytics";
 import { ProductCard } from "../ProductCard";
 import { ProductOverlay } from "../ProductOverlay";
 
@@ -31,13 +37,27 @@ export function Products({ products, categories, kicker, heading }: ProductsProp
 
   const handleAdd = (p: StorefrontProduct) => {
     addToCart(p);
+    trackProductCardAddToCart(p.slug, "grid");
     setLastAdded(p.id);
     clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setLastAdded(null), 1500);
   };
 
   const handleOpen = (p: StorefrontProduct) => {
+    trackProductCardClick(p.slug, "grid");
     setSelected(p);
+  };
+
+  const handleFav = (id: number) => {
+    const product = products.find((p) => p.id === id);
+    const wasFaved = isFav(id);
+    toggleFav(id);
+    if (product) trackWishlistToggle(product.slug, !wasFaved, "grid");
+  };
+
+  const handleCategoryClick = (c: string) => {
+    trackCategoryFilter(c, "shop");
+    setCat(c);
   };
 
   return (
@@ -52,7 +72,7 @@ export function Products({ products, categories, kicker, heading }: ProductsProp
             <button
               key={c}
               className={`chip-btn${cat === c ? " active" : ""}`}
-              onClick={() => setCat(c)}
+              onClick={() => handleCategoryClick(c)}
             >
               {c}
             </button>
@@ -67,7 +87,7 @@ export function Products({ products, categories, kicker, heading }: ProductsProp
             faved={isFav(p.id)}
             addedFlash={lastAdded === p.id}
             onAdd={handleAdd}
-            onFav={toggleFav}
+            onFav={handleFav}
             onOpen={handleOpen}
           />
         ))}

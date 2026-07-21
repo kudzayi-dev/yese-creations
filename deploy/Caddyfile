@@ -13,3 +13,7 @@ www.yesecreations.com {
 cms.yesecreations.com {
 	reverse_proxy cms:3001
 }
+
+analytics.yesecreations.com {
+	reverse_proxy umami:3000
+}

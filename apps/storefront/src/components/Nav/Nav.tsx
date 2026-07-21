@@ -2,6 +2,7 @@ import { useLocation } from "@tanstack/react-router";
 import { useAboutOverlay } from "~/hooks/useAboutOverlay";
 import { useSearchOverlay } from "~/hooks/useSearchOverlay";
 import { scrollToSection } from "~/lib/scrollToSection";
+import { trackNavClick, trackCartOpen } from "~/lib/analytics";
 import { IconBag, IconHeartOutline, IconSearch } from "../icons";
 import styles from "./Nav.module.css";
 
@@ -61,9 +62,25 @@ export function Nav({
         </div>
       </div>
       <div className={styles.navLinks}>
-        <a href="#shop" onClick={(e) => scrollToSection(e, "shop")}>Shop</a>
+        <a
+          href="#shop"
+          onClick={(e) => {
+            trackNavClick("Shop");
+            scrollToSection(e, "shop");
+          }}
+        >
+          Shop
+        </a>
         {sectionFlags.originalArtworks && (
-          <a href="#gallery" onClick={(e) => scrollToSection(e, "gallery")}>Gallery</a>
+          <a
+            href="#gallery"
+            onClick={(e) => {
+              trackNavClick("Gallery");
+              scrollToSection(e, "gallery");
+            }}
+          >
+            Gallery
+          </a>
         )}
         {/* On the homepage, "My Story" is already inline in the scroll
             (Story.tsx) — plain anchor-scroll there beats popping an overlay
@@ -73,11 +90,20 @@ export function Nav({
             crawlable fallback (works with JS off, or a modifier-click to
             open it in a new tab). */}
         {isHome ? (
-          <a href="#story" onClick={(e) => scrollToSection(e, "story")}>Our Story</a>
+          <a
+            href="#story"
+            onClick={(e) => {
+              trackNavClick("Our Story");
+              scrollToSection(e, "story");
+            }}
+          >
+            Our Story
+          </a>
         ) : (
           <a
             href="/about"
             onClick={(e) => {
+              trackNavClick("Our Story");
               e.preventDefault();
               openAbout();
             }}
@@ -86,26 +112,65 @@ export function Nav({
           </a>
         )}
         {sectionFlags.process && (
-          <a href="#process" onClick={(e) => scrollToSection(e, "process")}>Process</a>
+          <a
+            href="#process"
+            onClick={(e) => {
+              trackNavClick("Process");
+              scrollToSection(e, "process");
+            }}
+          >
+            Process
+          </a>
         )}
         {sectionFlags.bespoke && (
-          <a href="#bespoke" onClick={(e) => scrollToSection(e, "bespoke")}>Bespoke</a>
+          <a
+            href="#bespoke"
+            onClick={(e) => {
+              trackNavClick("Bespoke");
+              scrollToSection(e, "bespoke");
+            }}
+          >
+            Bespoke
+          </a>
         )}
         {/* Real route, not a hash anchor — Feedback has its own standalone,
             indexable page (see routes/feedback.tsx) rather than a homepage
             section, since the full review list is too long for an anchor
             scroll or overlay. */}
-        <a href="/feedback">Feedback</a>
+        <a href="/feedback" onClick={() => trackNavClick("Feedback")}>
+          Feedback
+        </a>
       </div>
       <div className={styles.navRight}>
-        <button className="icon-btn" aria-label="Search" onClick={openSearch}>
+        <button
+          className="icon-btn"
+          aria-label="Search"
+          onClick={() => {
+            trackNavClick("Search");
+            openSearch();
+          }}
+        >
           <IconSearch />
         </button>
-        <button className="icon-btn" aria-label="Wishlist" onClick={onWishlistClick}>
+        <button
+          className="icon-btn"
+          aria-label="Wishlist"
+          onClick={() => {
+            trackNavClick("Wishlist");
+            onWishlistClick?.();
+          }}
+        >
           <IconHeartOutline />
           {favCount > 0 && <span className="cart-count">{favCount}</span>}
         </button>
-        <button className="icon-btn" aria-label="Cart" onClick={onCartClick}>
+        <button
+          className="icon-btn"
+          aria-label="Cart"
+          onClick={() => {
+            trackCartOpen();
+            onCartClick?.();
+          }}
+        >
           <IconBag />
           {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
         </button>

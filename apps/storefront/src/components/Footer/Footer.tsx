@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IconArrow, IconCheck, IconClose, IconInstagram, IconPinterest, IconTiktok } from "../icons";
 import { scrollToSection } from "~/lib/scrollToSection";
 import { subscribeToNewsletter } from "~/lib/newsletter";
+import { trackNewsletterSignup } from "~/lib/analytics";
 import type { FooterContent, FooterSocialLink } from "~/lib/cms";
 import type { StorefrontCategory } from "@yese/product-data";
 import styles from "./Footer.module.css";
@@ -53,6 +54,7 @@ export function Footer({ content = DEFAULT_CONTENT, categories = [] }: FooterPro
     setStatus("submitting");
     try {
       const result = await subscribeToNewsletter({ data: { email } });
+      if (!result.alreadySubscribed) trackNewsletterSignup();
       setStatus(result.alreadySubscribed ? "alreadySubscribed" : "success");
     } catch {
       setStatus("error");

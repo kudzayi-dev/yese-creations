@@ -43,10 +43,20 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children?: ReactNode }) {
+  // Umami's tracking script — only rendered if both are actually
+  // configured (empty in local dev by default; see .env.example). No
+  // conditional needed anywhere else: lib/analytics.ts's track() calls
+  // just no-op if window.umami was never loaded.
+  const analyticsUrl = import.meta.env.VITE_ANALYTICS_URL;
+  const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        {analyticsUrl && websiteId && (
+          <script defer src={`${analyticsUrl}/script.js`} data-website-id={websiteId}></script>
+        )}
       </head>
       <body>
         <CartProvider>

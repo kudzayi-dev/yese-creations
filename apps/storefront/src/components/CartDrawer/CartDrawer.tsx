@@ -4,6 +4,7 @@ import { PALETTES } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
 import { scrollToSection } from "~/lib/scrollToSection";
+import { trackCartRemoveItem, trackCheckoutStart } from "~/lib/analytics";
 import { IconBag, IconClose } from "../icons";
 import styles from "./CartDrawer.module.css";
 
@@ -83,7 +84,13 @@ export function CartDrawer() {
                       <button onClick={() => incQty(item.id)} aria-label="Increase quantity">
                         +
                       </button>
-                      <button className={styles.remove} onClick={() => removeItem(item.id)}>
+                      <button
+                        className={styles.remove}
+                        onClick={() => {
+                          trackCartRemoveItem(item.name);
+                          removeItem(item.id);
+                        }}
+                      >
                         remove
                       </button>
                     </div>
@@ -102,7 +109,10 @@ export function CartDrawer() {
                 to="/checkout"
                 className="btn btn-primary"
                 style={{ width: "100%", justifyContent: "center" }}
-                onClick={closeDrawer}
+                onClick={() => {
+                  trackCheckoutStart(cart.reduce((s, c) => s + c.qty, 0), total);
+                  closeDrawer();
+                }}
               >
                 Checkout
               </Link>

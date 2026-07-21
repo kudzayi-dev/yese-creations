@@ -4,6 +4,14 @@ import { PALETTES, detailForStorefront, galleryForStorefront, getRelatedStorefro
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
+import {
+  trackProductViewed,
+  trackGalleryThumbClick,
+  trackQuantityChange,
+  trackWishlistToggle,
+  trackProductCardAddToCart,
+  trackProductCardClick,
+} from "~/lib/analytics";
 import { IconArrowLeft, IconBag, IconCheck, IconClose, IconHeart, IconHeartOutline } from "../icons";
 import styles from "./ProductOverlay.module.css";
 
@@ -37,6 +45,7 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
     if (product) {
       setQty(1);
       setActive(0);
+      trackProductViewed(product.slug, "overlay");
     }
   }, [product]);
 
@@ -89,7 +98,10 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
                     <button
                       key={i}
                       className={`${styles.thumb} ${i === active ? styles.thumbActive : ""}`}
-                      onClick={() => setActive(i)}
+                      onClick={() => {
+                        trackGalleryThumbClick(product.slug, i, "overlay");
+                        setActive(i);
+                      }}
                       aria-label={g.label}
                       title={g.label}
                     >
@@ -107,7 +119,11 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
                   {product.tag && <span className="tag">{product.tag}</span>}
                   <button
                     className={`${styles.fav} ${isFav(product.id) ? styles.favOn : ""}`}
-                    onClick={() => toggleFav(product.id)}
+                    onClick={() => {
+                      const wasFaved = isFav(product.id);
+                      toggleFav(product.id);
+                      trackWishlistToggle(product.slug, !wasFaved, "overlay");
+                    }}
                     aria-label="Save"
                   >
                     {isFav(product.id) ? <IconHeart size={18} /> : <IconHeartOutline size={18} />}
@@ -161,14 +177,29 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
                   <div className={styles.buyRow}>
                     <div className={styles.stepper}>
                       <button
-                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        onClick={() => {
+                          setQty((q) => {
+                            const next = Math.max(1, q - 1);
+                            trackQuantityChange(product.slug, next, "overlay");
+                            return next;
+                          });
+                        }}
                         disabled={qty <= 1}
                         aria-label="Decrease quantity"
                       >
                         −
                       </button>
                       <span>{qty}</span>
-                      <button onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">
+                      <button
+                        onClick={() => {
+                          setQty((q) => {
+                            const next = q + 1;
+                            trackQuantityChange(product.slug, next, "overlay");
+                            return next;
+                          });
+                        }}
+                        aria-label="Increase quantity"
+                      >
                         +
                       </button>
                     </div>
@@ -176,6 +207,7 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
                       className={`btn btn-primary ${styles.add}`}
                       onClick={() => {
                         addToCart(product, qty);
+                        trackProductCardAddToCart(product.slug, "overlay");
                         onClose();
                       }}
                     >
@@ -196,7 +228,12 @@ export function ProductOverlay({ product, onClose, allProducts }: ProductOverlay
                   {related.map((r) => {
                     const photo = r.photos[0];
                     return (
-                      <a key={r.id} className={styles.rel} href={`/product/${r.slug}`}>
+                      <a
+                        key={r.id}
+                        className={styles.rel}
+                        href={`/product/${r.slug}`}
+                        onClick={() => trackProductCardClick(r.slug, "related")}
+                      >
                         <div className={styles.relImg}>
                           {photo ? (
                             <img className="prod-photo" src={photo.sizes.card.url} alt={r.name} />

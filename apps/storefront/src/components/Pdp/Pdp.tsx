@@ -4,6 +4,14 @@ import { PALETTES, detailForStorefront, galleryForStorefront } from "@yese/produ
 import type { StorefrontProduct } from "@yese/product-data";
 import { useCart } from "~/hooks/useCart";
 import { formatGBP } from "~/lib/format";
+import {
+  trackProductViewed,
+  trackGalleryThumbClick,
+  trackQuantityChange,
+  trackWishlistToggle,
+  trackProductCardAddToCart,
+  trackProductCardClick,
+} from "~/lib/analytics";
 import { IconArrowLeft, IconBag, IconCheck, IconHeart, IconHeartOutline } from "../icons";
 import styles from "./Pdp.module.css";
 
@@ -40,13 +48,15 @@ export function Pdp({ product, related }: PdpProps) {
     setActive(0);
     setQty(1);
     setAdded(false);
-  }, [product.id]);
+    trackProductViewed(product.slug, "pdp");
+  }, [product.id, product.slug]);
 
   const activeView = gallery[active] ?? gallery[0]!;
   const faved = isFav(product.id);
 
   const handleAdd = () => {
     addToCart(product, qty);
+    trackProductCardAddToCart(product.slug, "pdp");
     setAdded(true);
     clearTimeout(addTimer.current);
     addTimer.current = setTimeout(() => setAdded(false), 1500);
@@ -84,7 +94,10 @@ export function Pdp({ product, related }: PdpProps) {
               <button
                 key={i}
                 className={`${styles.thumb} ${i === active ? styles.thumbActive : ""}`}
-                onClick={() => setActive(i)}
+                onClick={() => {
+                  trackGalleryThumbClick(product.slug, i, "pdp");
+                  setActive(i);
+                }}
                 aria-label={g.label}
                 title={g.label}
               >
@@ -102,7 +115,10 @@ export function Pdp({ product, related }: PdpProps) {
             {product.tag && <span className="tag">{product.tag}</span>}
             <button
               className={`${styles.fav} ${faved ? styles.favOn : ""}`}
-              onClick={() => toggleFav(product.id)}
+              onClick={() => {
+                toggleFav(product.id);
+                trackWishlistToggle(product.slug, !faved, "pdp");
+              }}
               aria-label="Save to wishlist"
             >
               {faved ? <IconHeart size={18} /> : <IconHeartOutline size={18} />}
@@ -154,14 +170,29 @@ export function Pdp({ product, related }: PdpProps) {
             <div className={styles.buyRow}>
               <div className={styles.stepper}>
                 <button
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  onClick={() => {
+                    setQty((q) => {
+                      const next = Math.max(1, q - 1);
+                      trackQuantityChange(product.slug, next, "pdp");
+                      return next;
+                    });
+                  }}
                   disabled={qty <= 1}
                   aria-label="Decrease quantity"
                 >
                   −
                 </button>
                 <span>{qty}</span>
-                <button onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">
+                <button
+                  onClick={() => {
+                    setQty((q) => {
+                      const next = q + 1;
+                      trackQuantityChange(product.slug, next, "pdp");
+                      return next;
+                    });
+                  }}
+                  aria-label="Increase quantity"
+                >
                   +
                 </button>
               </div>
@@ -193,7 +224,12 @@ export function Pdp({ product, related }: PdpProps) {
           {related.map((r) => {
             const photo = r.photos[0];
             return (
-              <a key={r.id} className={styles.rel} href={`/product/${r.slug}`}>
+              <a
+                key={r.id}
+                className={styles.rel}
+                href={`/product/${r.slug}`}
+                onClick={() => trackProductCardClick(r.slug, "related")}
+              >
                 <div className={styles.relImg}>
                   {photo ? (
                     <img className="prod-photo" src={photo.sizes.card.url} alt={r.name} />

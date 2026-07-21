@@ -4,6 +4,7 @@ import type { FeedbackEntry } from "~/lib/cms";
 import { useCart } from "~/hooks/useCart";
 import { useReveal } from "~/hooks/useReveal";
 import { FeedbackCard } from "~/components/Reviews/FeedbackCard";
+import { trackCategoryFilter } from "~/lib/analytics";
 import { IconArrowLeft, IconBag } from "~/components/icons";
 // Reuses the PDP's page-chrome classes (nav/back/brand/cart/crumb/foot) —
 // same standalone-page layout, not product-specific, so no need to fork a
@@ -111,7 +112,10 @@ export function FeedbackPage({ feedback, categories }: FeedbackPageProps) {
               <button
                 key={c}
                 className={`chip-btn${cat === c ? " active" : ""}`}
-                onClick={() => setCat(c)}
+                onClick={() => {
+                  trackCategoryFilter(c, "feedback");
+                  setCat(c);
+                }}
               >
                 {c}
               </button>

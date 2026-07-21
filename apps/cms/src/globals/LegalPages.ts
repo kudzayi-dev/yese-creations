@@ -69,7 +69,7 @@ export const LegalPages: GlobalConfig = {
             {
               heading: "Cookies and similar technology",
               body:
-                "We don't use analytics, advertising, or tracking cookies of any kind. Your shopping basket and wishlist are remembered using your browser's local storage \u2014 this stays on your own device and is never sent to us. During checkout, Stripe (see above) may set its own cookies for fraud prevention.",
+                "We use privacy-friendly, cookieless analytics (Umami) to understand how people use the shop \u2014 which pages get visited, what's searched for, which filters and products get clicked \u2014 so we can make it better. This doesn't use cookies, doesn't track you across other websites, and doesn't identify you personally. Your shopping basket and wishlist are remembered separately, using your browser's local storage \u2014 this stays on your own device and is never sent to us. During checkout, Stripe (see above) may set its own cookies for fraud prevention.",
             },
             {
               heading: "How long we keep your information",

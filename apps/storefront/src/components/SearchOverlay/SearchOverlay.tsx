@@ -8,6 +8,7 @@ import type { StorefrontCategory } from "@yese/product-data";
 import { formatGBP } from "~/lib/format";
 import { useSearchOverlay } from "~/hooks/useSearchOverlay";
 import { scrollToSection } from "~/lib/scrollToSection";
+import { trackSearchQuery, trackSearchResultClick, trackSearchPopularCategoryClick } from "~/lib/analytics";
 import { IconClose, IconSearch } from "../icons";
 // Reuses ProductOverlay's full-screen-takeover mechanics (fixed position,
 // open/opacity transition, scroll container) — same pattern as AboutOverlay,
@@ -104,6 +105,13 @@ export function SearchOverlay() {
     });
   }, [allProducts, debouncedQuery]);
 
+  // Fire once per completed (debounce-settled) search, not per keystroke.
+  useEffect(() => {
+    if (debouncedQuery && !debouncing) {
+      trackSearchQuery(debouncedQuery, results.length);
+    }
+  }, [debouncedQuery, debouncing, results.length]);
+
   return (
     <div className={`${overlayStyles.overlay} ${isOpen ? overlayStyles.open : ""}`} aria-hidden={!isOpen}>
       <div className={styles.topbar}>
@@ -135,7 +143,14 @@ export function SearchOverlay() {
               <span className={styles.label}>Popular categories</span>
               <div className={styles.chips}>
                 {(categories ?? []).slice(0, 4).map((c) => (
-                  <button key={c.id} className="chip-btn" onClick={() => setQuery(c.name)}>
+                  <button
+                    key={c.id}
+                    className="chip-btn"
+                    onClick={() => {
+                      trackSearchPopularCategoryClick(c.name);
+                      setQuery(c.name);
+                    }}
+                  >
                     {c.name}
                   </button>
                 ))}
@@ -190,7 +205,10 @@ export function SearchOverlay() {
                     key={p.id}
                     className={styles.row}
                     href={`/product/${p.slug}`}
-                    onClick={closeSearch}
+                    onClick={() => {
+                      trackSearchResultClick(p.slug, debouncedQuery);
+                      closeSearch();
+                    }}
                   >
                     <div className={styles.thumb}>
                       {p.photos[0] ? (
