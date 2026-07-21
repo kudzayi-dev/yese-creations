@@ -1,0 +1,23 @@
+# Root .dockerignore — applies to any `docker build` run from the repo
+# root context (both apps/cms/Dockerfile and apps/storefront/Dockerfile
+# are built this way; see each Dockerfile's header comment).
+node_modules
+**/node_modules
+.git
+.turbo
+**/.turbo
+.plan
+design_handoff_*
+apps/cms/media
+apps/cms/.next
+apps/storefront/dist
+apps/docs/build
+apps/docs/.docusaurus
+**/*.tsbuildinfo
+out
+.DS_Store
+**/.DS_Store
+.env
+.env.*
+!.env.example
+!**/.env.example

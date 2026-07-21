@@ -25,6 +25,7 @@ media
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # misc
 .DS_Store

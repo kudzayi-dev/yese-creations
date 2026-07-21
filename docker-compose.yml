@@ -1,0 +1,119 @@
+# docker-compose.yml — production VPS deployment.
+#
+# Usage on the VPS:
+#   cp .env.production.example .env.production   # fill in real secrets
+#   docker compose --env-file .env.production up -d --build
+#
+# Layout: Postgres + CMS + storefront + Caddy (reverse proxy, automatic
+# HTTPS via Let's Encrypt) on one host — matches this project's existing
+# local-dev shape (a Docker Postgres the CMS talks to) rather than
+# introducing a new architecture just for production.
+#
+# BUILD ORDER MATTERS for a complete first deploy: the storefront's build
+# step fetches the live product list from the CMS to prerender every PDP +
+# build the sitemap (see apps/storefront/Dockerfile's header comment). On
+# a brand new VPS, bring up postgres + cms first, seed it, THEN build the
+# storefront — see deploy/README.md.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: yese
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  cms:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URI: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/yese
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      # This is the CMS's own PUBLIC domain (see .env.production.example's
+      # header comment for why this differs from the storefront's CMS_URL).
+      CMS_URL: ${PUBLIC_CMS_URL}
+      STOREFRONT_URL: ${STOREFRONT_URL}
+      CMS_SERVICE_TOKEN: ${CMS_SERVICE_TOKEN}
+      NODE_ENV: production
+    volumes:
+      # Uploaded product photos (local disk, per the media storage
+      # decision) — a named volume so they survive `docker compose up
+      # --build` redeploys. Back this up; it's the only copy.
+      - cms_media:/app/apps/cms/media
+    networks: [internal]
+
+  storefront:
+    build:
+      context: .
+      dockerfile: apps/storefront/Dockerfile
+      args:
+        # Build-time only (prerender + sitemap generation) — see
+        # apps/storefront/Dockerfile's header comment. Uses the internal
+        # network so the build doesn't depend on the public domain/DNS
+        # already resolving.
+        CMS_URL: http://cms:3001
+        SITE_URL: ${SITE_URL}
+    restart: unless-stopped
+    depends_on:
+      - cms
+    environment:
+      # Runtime CMS_URL: internal Docker network, not the public domain —
+      # faster and doesn't round-trip through Caddy for server-to-server
+      # calls. The image URLs the CMS RETURNS are already public (baked in
+      # via the CMS's own PUBLIC_CMS_URL), so this doesn't affect what a
+      # customer's browser actually loads.
+      CMS_URL: http://cms:3001
+      SITE_URL: ${SITE_URL}
+      CMS_SERVICE_TOKEN: ${CMS_SERVICE_TOKEN}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      NODE_ENV: production
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - cms
+      - storefront
+    networks: [internal]
+
+  # ---- Telemetry (not yet configured) ----
+  # You mentioned a "local telemetry server" alongside Postgres, but I
+  # don't know what that refers to yet (self-hosted error tracking like
+  # GlitchTip/Sentry? uptime monitoring like Uptime Kuma? log aggregation?
+  # something already running elsewhere on your infra?) — whichever it is
+  # changes what service definition belongs here and what the CMS/
+  # storefront need wired to it (a DSN env var, a log driver, etc). Once
+  # you confirm, this section gets a real service block instead of this
+  # comment.
+
+networks:
+  internal:
+
+volumes:
+  postgres_data:
+  cms_media:
+  caddy_data:
+  caddy_config:
