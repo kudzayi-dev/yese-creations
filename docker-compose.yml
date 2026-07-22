@@ -55,6 +55,13 @@ services:
     environment:
       DATABASE_URI: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/yese
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      # Confirmed the hard way: without this, Payload's runtime defaults
+      # to dev-mode behavior for ANY command run through this service
+      # (migrate AND seed) — including auto-push schema sync during
+      # seeding, which then makes a LATER `payload migrate` call detect
+      # "you've run in dev mode" and hang on an interactive y/N prompt
+      # that can never be answered in a non-TTY container.
+      NODE_ENV: production
     command: pnpm --filter @yese/cms migrate
     networks: [internal]
 
@@ -95,6 +102,12 @@ services:
         # already resolving.
         CMS_URL: http://cms:3001
         SITE_URL: ${SITE_URL}
+        # Vite bakes VITE_* vars into the client bundle at BUILD time —
+        # these must be build args, not just the runtime `environment:`
+        # below (confirmed the hard way: the tracking script silently
+        # never rendered until this was fixed).
+        VITE_ANALYTICS_URL: ${VITE_ANALYTICS_URL}
+        VITE_UMAMI_WEBSITE_ID: ${VITE_UMAMI_WEBSITE_ID}
     restart: unless-stopped
     depends_on:
       - cms
@@ -110,8 +123,6 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-      VITE_ANALYTICS_URL: ${VITE_ANALYTICS_URL}
-      VITE_UMAMI_WEBSITE_ID: ${VITE_UMAMI_WEBSITE_ID}
       NODE_ENV: production
     networks: [internal]
 

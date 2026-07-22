@@ -42,7 +42,13 @@ COPY . .
 # be.
 ARG CMS_URL=http://localhost:3001
 ARG SITE_URL=https://www.yesecreations.com
-ENV CMS_URL=$CMS_URL SITE_URL=$SITE_URL
+# Vite embeds VITE_* vars into the compiled client bundle at BUILD time —
+# setting them only as runtime container environment (as a first version
+# of docker-compose.yml did) does nothing; confirmed the hard way running
+# the full stack together and finding the tracking script never rendered.
+ARG VITE_ANALYTICS_URL=
+ARG VITE_UMAMI_WEBSITE_ID=
+ENV CMS_URL=$CMS_URL SITE_URL=$SITE_URL VITE_ANALYTICS_URL=$VITE_ANALYTICS_URL VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
 RUN pnpm turbo run build --filter=@yese/storefront...
 
 FROM node:20-alpine AS runner
