@@ -34,6 +34,30 @@ services:
       retries: 10
     networks: [internal]
 
+  # Runs Payload's real migrations (apps/cms/src/migrations/) once against
+  # a fresh/updated database, then exits. Found the hard way: Payload's
+  # automatic dev-mode schema push (what every local `pnpm dev` session
+  # has relied on across this whole project) does NOT run in production
+  # (`next start`/standalone) — without this step, a truly fresh database
+  # 500s on first request ("relation \"categories\" does not exist").
+  # Uses the Dockerfile's `builder` stage specifically, not the lean
+  # runtime image below — the runtime image's standalone output
+  # deliberately excludes the Payload CLI/migration tooling, only the
+  # builder stage still has it.
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+      target: builder
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URI: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/yese
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+    command: pnpm --filter @yese/cms migrate
+    networks: [internal]
+
   cms:
     build:
       context: .
@@ -42,6 +66,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URI: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/yese
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}

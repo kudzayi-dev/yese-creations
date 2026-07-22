@@ -19,15 +19,14 @@ const dirname = path.dirname(filename);
 // product photography now comes from PRODUCT_PHOTOS_DIR below.
 const ASSETS_DIR = path.resolve(dirname, "../../../../design_handoff_yese_shop/assets");
 
-// Real product photography, migrated from eBay and downloaded locally by
-// download-images.js. One subfolder per product id, files numbered 1..n
-// matching the `imgs` order in @yese/product-data. Not committed to the repo
-// (too large) — this script expects it to exist on the machine running the
-// seed, same as ASSETS_DIR above.
-const PRODUCT_PHOTOS_DIR = path.join(
-  process.env.HOME ?? "",
-  "Downloads/yese-assets/assets/products",
-);
+// Real product photography, migrated from eBay. One subfolder per product
+// id, files numbered 1..n matching the `imgs` order in @yese/product-data.
+// Committed to the repo (product-photos/, repo root) rather than expected
+// to exist on whatever machine happens to run the seed — that was the
+// previous approach (a hardcoded ~/Downloads path) and it genuinely broke
+// the first real production seed attempt: inside a Docker container $HOME
+// is /root, and the folder was never in the build context regardless.
+const PRODUCT_PHOTOS_DIR = path.resolve(dirname, "../../../../product-photos");
 
 // Brand marks only. Product photos are handled dynamically via PRODUCT_PHOTOS_DIR.
 const MEDIA_SEED: Array<{ file: string; alt: string }> = [

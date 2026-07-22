@@ -12,6 +12,8 @@
     "seed:feedback": "payload run src/scripts/seed-feedback.ts",
     "clean:products": "payload run src/scripts/clean-products.ts",
     "payload": "payload",
+    "migrate": "payload migrate",
+    "migrate:create": "payload migrate:create",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .turbo .next node_modules *.tsbuildinfo"
   },
