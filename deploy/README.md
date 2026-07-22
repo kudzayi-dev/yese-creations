@@ -111,6 +111,43 @@ docker compose --env-file .env.production logs -f cms
 docker compose --env-file .env.production logs -f storefront
 ```
 
+## Ongoing maintenance (Hostinger VPS is self-managed)
+
+Confirmed directly from Hostinger's own docs: their VPS is self-managed —
+they cover hardware, network, and hPanel functionality, nothing at the OS
+or application level. There's no vendor patching anything here; the two
+things below are genuinely on us.
+
+**Host OS security patches** — set this up once, right after first boot:
+
+```bash
+sudo apt update && sudo apt install unattended-upgrades
+sudo dpkg-reconfigure --priority=low unattended-upgrades
+```
+
+This auto-applies security patches to the host OS (kernel, openssh-server,
+etc.) without needing to remember to do it manually. Docker Engine itself
+isn't covered by this — update it periodically:
+
+```bash
+sudo apt update && sudo apt install --only-upgrade docker-ce docker-ce-cli containerd.io
+```
+
+**Container image patches** — everything in this stack runs from pinned
+base images (`postgres:16-alpine`, `caddy:2-alpine`,
+`ghcr.io/umami-software/umami:postgresql-latest`, `node:20-alpine` for the
+two custom Dockerfiles) — rebuilding periodically pulls in whatever
+security fixes landed in those upstream images since the last build:
+
+```bash
+docker compose --env-file .env.production pull
+docker compose --env-file .env.production up -d --build
+```
+
+A monthly cadence is reasonable for a low-traffic shop — set a recurring
+reminder rather than relying on remembering. Nothing here does this
+automatically.
+
 ## Known gotchas (found while building this)
 
 - **No automatic schema push in production** — Payload's dev-mode
