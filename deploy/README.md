@@ -92,6 +92,36 @@ Postgres data and uploaded media (`postgres_data`/`cms_media` named
 volumes) persist across this — `--build` only rebuilds the app images, it
 doesn't touch volumes.
 
+## Keeping data intact when shipping new features
+
+Short version: data persistence is already handled, you don't need to
+think about it for ordinary redeploys. Two things ARE worth knowing:
+
+**Schema changes go through a migration, not manual DB work.** If a
+future feature adds/changes a Payload collection or field:
+1. Build and test it locally as usual.
+2. `cd apps/cms && pnpm migrate:create` — generates a migration file.
+3. Commit that file alongside the code change.
+4. On the VPS: `git pull && docker compose up -d --build` — `migrate`
+   applies it automatically before `cms` restarts (see "Database
+   migrations" above). Existing rows are untouched; only the new schema
+   change is applied.
+
+**Don't casually re-run `pnpm seed` in production after the first
+deploy.** It upserts-by-slug from `packages/product-data/src/products.ts`
+— exactly right for the FIRST seed, but a later re-run would silently
+overwrite any edits made directly in `/admin` (a renamed product, a
+changed price, a swapped photo) back to whatever's hardcoded in that
+file. Once the shop owner is managing the catalog live, the production
+database — not `products.ts` — is the real source of truth for existing
+products. Adding genuinely new products in bulk later needs a
+deliberately scoped script, not a full re-seed.
+
+Local dev's Postgres and the VPS's production Postgres are two
+independent databases from here on, by design — they're not meant to
+sync with each other. Local is for building/testing; production is the
+real business data.
+
 ## Media storage
 
 Product photos live on local disk inside the `cms_media` volume (see
