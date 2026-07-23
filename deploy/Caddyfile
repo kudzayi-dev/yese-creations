@@ -1,5 +1,5 @@
 # deploy/Caddyfile — reverse proxy + automatic HTTPS (Let's Encrypt).
-# Replace both domains below with the real ones before deploying.
+# Uses the real domain (yesecreations.com) throughout.
 #
 # The storefront's Stripe webhook (/api/webhooks/stripe) and the CMS's
 # /admin and /api/* routes all pass straight through unchanged — Caddy
@@ -8,6 +8,12 @@
 
 www.yesecreations.com {
 	reverse_proxy storefront:3000
+}
+
+# Redirect the bare domain to www — people will often type it without the
+# subdomain.
+yesecreations.com {
+	redir https://www.yesecreations.com{uri} permanent
 }
 
 cms.yesecreations.com {
