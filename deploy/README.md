@@ -117,6 +117,19 @@ database — not `products.ts` — is the real source of truth for existing
 products. Adding genuinely new products in bulk later needs a
 deliberately scoped script, not a full re-seed.
 
+Why this specifically bites on renames: the seed script matches existing
+products **by slug** (`where: { slug: { equals: slug } }` in
+`seed.ts`), and slug is computed fresh from `name` at seed time via
+`productSlug()`. Editing a product's name directly in `/admin` is safe
+— Payload's `slug` field only auto-generates once, when empty, so an
+existing product's slug (and its PDP URL) never changes just because the
+name did. But if `products.ts` itself is edited again later and the seed
+is re-run against production, a changed name computes a NEW slug that
+won't match the existing record — so instead of updating it, seed.ts
+creates a duplicate and leaves the old-slugged one orphaned. Renaming
+existing products should happen in `/admin`, not by editing
+`products.ts` + reseeding, once real data exists.
+
 Local dev's Postgres and the VPS's production Postgres are two
 independent databases from here on, by design — they're not meant to
 sync with each other. Local is for building/testing; production is the
