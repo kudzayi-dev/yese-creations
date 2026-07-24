@@ -62,6 +62,18 @@ services:
       # "you've run in dev mode" and hang on an interactive y/N prompt
       # that can never be answered in a non-TTY container.
       NODE_ENV: production
+    volumes:
+      # CRITICAL: without this, seeding (which runs via this service, not
+      # `cms` — see deploy/README.md) writes uploaded media to this
+      # container's own ephemeral filesystem instead of the real shared
+      # volume, and those files vanish the instant `--rm` removes the
+      # container. Found the hard way on the first real production seed:
+      # every product record was created with correct-looking metadata
+      # (filesize, dimensions, filename all matched the real source
+      # photo) but zero actual files existed in cms_media — the CMS's
+      # media-serving route 500'd on every single image. Must match the
+      # cms service's mount path exactly.
+      - cms_media:/app/apps/cms/media
     command: pnpm --filter @yese/cms migrate
     networks: [internal]
 
