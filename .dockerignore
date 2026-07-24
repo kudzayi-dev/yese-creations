@@ -7,13 +7,11 @@ node_modules
 .turbo
 **/.turbo
 .plan
-# design_handoff_yese_shop/assets IS a genuine runtime dependency of
-# apps/cms/src/scripts/seed.ts (reads real product photos from there
-# directly, not just local reference material — confirmed the hard way:
-# `docker compose run migrate pnpm seed` failed with "Seed asset missing"
-# until this exception was added). The other design_handoff_* folders
-# (checkout/newsletter/search/reviews) really are reference-only and stay
-# excluded.
+# The other design_handoff_* folders are reference-only, safe to exclude
+# from the build context (unlike product-photos/ and brand-assets/ at
+# repo root, which are genuine seed-time runtime dependencies — see
+# apps/cms/src/scripts/seed.ts).
+design_handoff_yese_shop
 design_handoff_yese_checkout
 design_handoff_yese_newsletter
 design_handoff_yese_search

@@ -15,9 +15,14 @@ import { getPayload } from "payload";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-// Read-only source assets from the design handoff bundle. Brand marks only —
-// product photography now comes from PRODUCT_PHOTOS_DIR below.
-const ASSETS_DIR = path.resolve(dirname, "../../../../design_handoff_yese_shop/assets");
+// Read-only source assets — brand marks only (product photography comes
+// from PRODUCT_PHOTOS_DIR below). Committed to the repo (brand-assets/,
+// repo root) rather than sourced from design_handoff_yese_shop/ — that
+// folder is gitignored (design_handoff_yese_*, local reference material
+// only) and was never pushed to GitHub, so a fresh production clone
+// never had it. Found the hard way: the first real production seed
+// attempt failed with "Seed asset missing" for these exact two files.
+const ASSETS_DIR = path.resolve(dirname, "../../../../brand-assets");
 
 // Real product photography, migrated from eBay. One subfolder per product
 // id, files numbered 1..n matching the `imgs` order in @yese/product-data.
